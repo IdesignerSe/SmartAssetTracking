@@ -1,49 +1,53 @@
-﻿using SmartAssetTracking.Services;
+﻿using SmartAssetTracking.App.Services;
+using SmartAssetTracking.App.Data;
 
-class Program
+namespace SmartAssetTracking.App
 {
-    static void Main()
+    class Program
     {
-        Console.Title = "Smart Asset Tracking System";
-
-        var assetService = new AssetService();
-
-        while (true)
+        static void Main()
         {
-            Console.Clear();
-            Console.WriteLine("=== SMART ASSET TRACKING ===");
-            Console.WriteLine("1. Add Asset");
-            Console.WriteLine("2. Show All Assets");
-            Console.WriteLine("3. Update Asset");
-            Console.WriteLine("4. Delete Asset");
-            Console.WriteLine("5. Exit");
-            Console.Write("Choose option: ");
+            Console.Title = "Smart Asset Tracking System";
 
-            var choice = Console.ReadLine();
+            var assetService = new AssetService();
 
-            switch (choice)
+            while (true)
             {
-                case "1":
-                    assetService.AddAsset();
-                    break;
-                case "2":
-                    assetService.ShowAssets();
-                    break;
-                case "3":
-                    assetService.UpdateAsset();
-                    break;
-                case "4":
-                    assetService.DeleteAsset();
-                    break;
-                case "5":
-                    return;
-                default:
-                    Console.WriteLine("Invalid choice.");
-                    break;
-            }
+                Console.Clear();
+                Console.WriteLine("=== SMART ASSET TRACKING ===");
+                Console.WriteLine("1. Add Asset");
+                Console.WriteLine("2. Show All Assets");
+                Console.WriteLine("3. Update Asset");
+                Console.WriteLine("4. Delete Asset");
+                Console.WriteLine("5. Exit");
+                Console.Write("Choose option: ");
 
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.ReadLine();
+                var choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        assetService.AddAsset();
+                        break;
+                    case "2":
+                        assetService.ShowAssets();
+                        break;
+                    case "3":
+                        assetService.UpdateAsset();
+                        break;
+                    case "4":
+                        assetService.DeleteAsset();
+                        break;
+                    case "5":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice.");
+                        break;
+                }
+
+                Console.WriteLine("\nPress ENTER to continue...");
+                Console.ReadLine();
+            }
         }
     }
 }

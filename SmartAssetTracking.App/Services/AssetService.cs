@@ -1,8 +1,8 @@
-using SmartAssetTracking.Data;
-using SmartAssetTracking.Models;
+using SmartAssetTracking.App.Data;
+using SmartAssetTracking.App.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace SmartAssetTracking.Services
+namespace SmartAssetTracking.App.Services
 {
     public class AssetService
     {
@@ -28,7 +28,7 @@ namespace SmartAssetTracking.Services
             Console.Write("Serial Number: ");
             string serial = Console.ReadLine();
 
-            var asset = new ComputerAsset(); // default, we fix type below
+            Asset asset;
 
             if (type.ToLower() == "laptop" || type.ToLower() == "desktop")
                 asset = new ComputerAsset();
@@ -41,7 +41,7 @@ namespace SmartAssetTracking.Services
             asset.PurchaseDate = purchaseDate;
             asset.PurchasePriceUSD = price;
             asset.SerialNumber = serial;
-            asset.LocalPrice = price; // temporary until currency system is added
+            asset.LocalPrice = price;
             asset.WarrantyExpiration = purchaseDate.AddYears(3);
 
             db.Assets.Add(asset);
