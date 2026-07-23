@@ -33,6 +33,7 @@ Dashboard-statistik
 
 📁 Projektstruktur (GitHub‑redo)
 
+```text
 
 SmartAssetTracking/
 │
@@ -84,7 +85,7 @@ SmartAssetTracking/
 ├── Program.cs
 └── README.md
 
-
+``` 
 
 🏗️ Arkitektur
 ✔ Clean Architecture
