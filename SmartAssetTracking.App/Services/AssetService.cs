@@ -11,22 +11,22 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             Console.Write("Asset Type (Laptop/Desktop/iPhone/Samsung/Nokia/Tablet): ");
-            string type = Console.ReadLine();
+            string type = Console.ReadLine()!;
 
             Console.Write("Brand: ");
-            string brand = Console.ReadLine();
+            string brand = Console.ReadLine()!;
 
             Console.Write("Model Name: ");
-            string model = Console.ReadLine();
+            string model = Console.ReadLine()!;
 
             Console.Write("Purchase Date (yyyy-mm-dd): ");
-            DateTime purchaseDate = DateTime.Parse(Console.ReadLine());
+            DateTime purchaseDate = DateTime.Parse(Console.ReadLine()!);
 
             Console.Write("Purchase Price (USD): ");
-            decimal price = decimal.Parse(Console.ReadLine());
+            decimal price = decimal.Parse(Console.ReadLine()!);
 
             Console.Write("Serial Number: ");
-            string serial = Console.ReadLine();
+            string serial = Console.ReadLine()!;
 
             Asset asset;
 
@@ -72,7 +72,7 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             Console.Write("Enter Asset ID to update: ");
-            int id = int.Parse(Console.ReadLine());
+            int id = int.Parse(Console.ReadLine()!);
 
             var asset = db.Assets.FirstOrDefault(a => a.Id == id);
 
@@ -83,10 +83,10 @@ namespace SmartAssetTracking.App.Services
             }
 
             Console.Write("New Brand: ");
-            asset.Brand = Console.ReadLine();
+            asset.Brand = Console.ReadLine()!;
 
             Console.Write("New Model: ");
-            asset.ModelName = Console.ReadLine();
+            asset.ModelName = Console.ReadLine()!;
 
             db.SaveChanges();
 
@@ -98,7 +98,7 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             Console.Write("Enter Asset ID to delete: ");
-            int id = int.Parse(Console.ReadLine());
+            int id = int.Parse(Console.ReadLine()!);
 
             var asset = db.Assets.FirstOrDefault(a => a.Id == id);
 
