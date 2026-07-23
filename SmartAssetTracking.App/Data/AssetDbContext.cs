@@ -12,13 +12,12 @@ namespace SmartAssetTracking.App.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            // SQLite database file
             options.UseSqlite("Data Source=assets.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Inheritance mapping
+            // Inheritance
             modelBuilder.Entity<ComputerAsset>().HasBaseType<Asset>();
             modelBuilder.Entity<MobileAsset>().HasBaseType<Asset>();
 
@@ -32,10 +31,11 @@ namespace SmartAssetTracking.App.Data
             // Employee → Assets (1-to-many)
             modelBuilder.Entity<Employee>()
                 .HasMany(e => e.AssignedAssets)
-                .WithOne()
+                .WithOne(a => a.AssignedEmployee)
+                .HasForeignKey(a => a.EmployeeId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // MaintenanceRecord → Asset (1-to-many)
+            // Maintenance → Asset (1-to-many)
             modelBuilder.Entity<MaintenanceRecord>()
                 .HasOne(m => m.Asset)
                 .WithMany()

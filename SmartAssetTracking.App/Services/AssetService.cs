@@ -28,12 +28,10 @@ namespace SmartAssetTracking.App.Services
             Console.Write("Serial Number: ");
             string serial = Console.ReadLine()!;
 
-            Asset asset;
-
-            if (type.ToLower() == "laptop" || type.ToLower() == "desktop")
-                asset = new ComputerAsset();
-            else
-                asset = new MobileAsset();
+            // Choose correct asset type
+            Asset asset = (type.ToLower() == "laptop" || type.ToLower() == "desktop")
+                ? new ComputerAsset()
+                : new MobileAsset();
 
             asset.AssetType = type;
             asset.Brand = brand;
@@ -41,8 +39,29 @@ namespace SmartAssetTracking.App.Services
             asset.PurchaseDate = purchaseDate;
             asset.PurchasePriceUSD = price;
             asset.SerialNumber = serial;
-            asset.LocalPrice = price;
             asset.WarrantyExpiration = purchaseDate.AddYears(3);
+
+            // --- OFFICE SELECTION (fixar foreign key error) ---
+            Console.WriteLine("\nAvailable Offices:");
+            foreach (var o in db.Offices)
+                Console.WriteLine($"{o.Id}. {o.OfficeName} ({o.Country})");
+
+            Console.Write("Choose Office ID: ");
+            int officeId = int.Parse(Console.ReadLine()!);
+
+            var office = db.Offices.FirstOrDefault(o => o.Id == officeId);
+
+            if (office == null)
+            {
+                Console.WriteLine("Invalid office. Asset not saved.");
+                return;
+            }
+
+            asset.OfficeId = officeId;
+            asset.Office = office;
+
+            // Currency conversion
+            asset.LocalPrice = CurrencyService.ConvertUSD(price, office.Currency);
 
             db.Assets.Add(asset);
             db.SaveChanges();
@@ -55,8 +74,8 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             var assets = db.Assets
-                .OrderBy(a => a.AssetType)                 // Sort by category
-                .ThenByDescending(a => a.PurchaseDate)     // Sort by date (newest first)
+                .OrderBy(a => a.AssetType)
+                .ThenByDescending(a => a.PurchaseDate)
                 .ToList();
 
             Console.WriteLine("\n=== COMPANY ASSETS ===");
@@ -65,7 +84,6 @@ namespace SmartAssetTracking.App.Services
 
             foreach (var a in assets)
             {
-                // Group header when category changes
                 if (currentType != a.AssetType)
                 {
                     currentType = a.AssetType;
@@ -74,7 +92,6 @@ namespace SmartAssetTracking.App.Services
 
                 string status = CalculateStatus(a.PurchaseDate);
 
-                // Highlighting (RED/YELLOW)
                 if (status == "RED")
                     Console.ForegroundColor = ConsoleColor.Red;
                 else if (status == "YELLOW")

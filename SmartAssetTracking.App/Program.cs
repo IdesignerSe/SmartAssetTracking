@@ -1,5 +1,4 @@
 ﻿using SmartAssetTracking.App.Services;
-using SmartAssetTracking.App.Data;
 
 namespace SmartAssetTracking.App
 {
@@ -7,10 +6,8 @@ namespace SmartAssetTracking.App
     {
         static void Main()
         {
-            Console.Title = "Smart Asset Tracking System";
-
             var assetService = new AssetService();
-            var officeService = new OfficeService();   // <-- NYTT
+            var officeService = new OfficeService();
 
             while (true)
             {
@@ -20,48 +17,66 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("2. Show All Assets");
                 Console.WriteLine("3. Update Asset");
                 Console.WriteLine("4. Delete Asset");
-                Console.WriteLine("5. Add Office");              // <-- NYTT
-                Console.WriteLine("6. Show Offices");            // <-- NYTT
-                Console.WriteLine("7. Assign Asset to Office");  // <-- NYTT
-                Console.WriteLine("8. Office Report");           // <-- NYTT
-                Console.WriteLine("9. Exit");
+                Console.WriteLine("5. Add Office");
+                Console.WriteLine("6. Show Offices");
+                Console.WriteLine("7. Assign Asset to Office");
+                Console.WriteLine("8. Office Report");
+                Console.WriteLine("9. Delete Office");
+                Console.WriteLine("10. Exit");
                 Console.Write("Choose option: ");
 
-                var choice = Console.ReadLine();
+                string input = Console.ReadLine()!;
 
-                switch (choice)
+                if (!int.TryParse(input, out int option))
                 {
-                    case "1":
+                    Console.WriteLine("Invalid input. Press ENTER...");
+                    Console.ReadLine();
+                    continue;
+                }
+
+                switch (option)
+                {
+                    case 1:
                         assetService.AddAsset();
                         break;
-                    case "2":
+
+                    case 2:
                         assetService.ShowAssets();
                         break;
-                    case "3":
+
+                    case 3:
                         assetService.UpdateAsset();
                         break;
-                    case "4":
+
+                    case 4:
                         assetService.DeleteAsset();
                         break;
 
-                    case "5":
+                    case 5:
                         officeService.AddOffice();
                         break;
-                    case "6":
+
+                    case 6:
                         officeService.ShowOffices();
                         break;
-                    case "7":
+
+                    case 7:
                         officeService.AssignAssetToOffice();
                         break;
-                    case "8":
+
+                    case 8:
                         officeService.OfficeReport();
                         break;
 
-                    case "9":
+                    case 9:
+                        officeService.DeleteOffice();
+                        break;
+
+                    case 10:
                         return;
 
                     default:
-                        Console.WriteLine("Invalid choice.");
+                        Console.WriteLine("Invalid option.");
                         break;
                 }
 

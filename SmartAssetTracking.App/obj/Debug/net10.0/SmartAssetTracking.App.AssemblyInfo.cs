@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartAssetTracking.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e51c42f0631025f5adc6291b944434fd1ea1debf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8db8013865ebd7bbfdf173959f77eb9cc312a43e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartAssetTracking.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartAssetTracking.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

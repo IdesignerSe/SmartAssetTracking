@@ -35,7 +35,10 @@ namespace SmartAssetTracking.App.Services
         public void ShowOffices()
         {
             using var db = new AssetDbContext();
-            var offices = db.Offices.Include(o => o.Assets).ToList();
+
+            var offices = db.Offices
+                .Include(o => o.Assets)
+                .ToList();
 
             Console.WriteLine("\n=== COMPANY OFFICES ===");
 
@@ -50,11 +53,33 @@ namespace SmartAssetTracking.App.Services
         {
             using var db = new AssetDbContext();
 
+            // Show assets
+            Console.WriteLine("\nAvailable Assets:");
+            foreach (var a in db.Assets)
+                Console.WriteLine($"{a.Id}. {a.Brand} {a.ModelName}");
+
             Console.Write("Asset ID: ");
-            int assetId = int.Parse(Console.ReadLine()!);
+            string assetInput = Console.ReadLine()!;
+
+            if (!int.TryParse(assetInput, out int assetId))
+            {
+                Console.WriteLine("Invalid input. Must be a number.");
+                return;
+            }
+
+            // Show offices
+            Console.WriteLine("\nAvailable Offices:");
+            foreach (var o in db.Offices)
+                Console.WriteLine($"{o.Id}. {o.OfficeName} ({o.Country})");
 
             Console.Write("Office ID: ");
-            int officeId = int.Parse(Console.ReadLine()!);
+            string officeInput = Console.ReadLine()!;
+
+            if (!int.TryParse(officeInput, out int officeId))
+            {
+                Console.WriteLine("Invalid input. Must be a number.");
+                return;
+            }
 
             var asset = db.Assets.FirstOrDefault(a => a.Id == assetId);
             var office = db.Offices.FirstOrDefault(o => o.Id == officeId);
@@ -66,6 +91,9 @@ namespace SmartAssetTracking.App.Services
             }
 
             asset.OfficeId = officeId;
+            asset.Office = office;
+
+            // Currency conversion
             asset.LocalPrice = CurrencyService.ConvertUSD(asset.PurchasePriceUSD, office.Currency);
 
             db.SaveChanges();
@@ -78,7 +106,13 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             Console.Write("Office ID: ");
-            int officeId = int.Parse(Console.ReadLine()!);
+            string input = Console.ReadLine()!;
+
+            if (!int.TryParse(input, out int officeId))
+            {
+                Console.WriteLine("Invalid input. Must be a number.");
+                return;
+            }
 
             var office = db.Offices
                 .Include(o => o.Assets)
@@ -102,6 +136,44 @@ namespace SmartAssetTracking.App.Services
             }
 
             Console.WriteLine($"\nTotal Office Value: {totalValue} {office.Currency}");
+        }
+
+        // ⭐ NEW: DELETE OFFICE
+        public void DeleteOffice()
+        {
+            using var db = new AssetDbContext();
+
+            Console.WriteLine("\nAvailable Offices:");
+            foreach (var o in db.Offices)
+                Console.WriteLine($"{o.Id}. {o.OfficeName} ({o.Country})");
+
+            Console.Write("Enter Office ID to delete: ");
+            string input = Console.ReadLine()!;
+
+            if (!int.TryParse(input, out int id))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
+
+            var office = db.Offices
+                .Include(o => o.Assets)
+                .FirstOrDefault(o => o.Id == id);
+
+            if (office == null)
+            {
+                Console.WriteLine("Office not found.");
+                return;
+            }
+
+            // Remove assets first (optional but safe)
+            foreach (var asset in office.Assets)
+                db.Assets.Remove(asset);
+
+            db.Offices.Remove(office);
+            db.SaveChanges();
+
+            Console.WriteLine("Office deleted.");
         }
 
         private string CalculateStatus(DateTime purchaseDate)
