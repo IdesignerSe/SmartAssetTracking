@@ -1,0 +1,87 @@
+############################
+# .NET / C# Build Artifacts
+############################
+
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+############################
+# Entity Framework Core
+############################
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# EF Core Migrations (optional)
+# Uncomment if you want to ignore migrations
+# Migrations/
+
+############################
+# Visual Studio / VS Code
+############################
+
+.vscode/
+.vs/
+*.user
+*.suo
+*.userprefs
+
+############################
+# OS Generated Files
+############################
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+############################
+# Rider / JetBrains
+############################
+
+.idea/
+*.iml
+
+############################
+# Logs / Temp / Cache
+############################
+
+*.tmp
+*.temp
+*.bak
+*.old
+*.swp
+*.swo
+*.orig
+
+############################
+# DotNet Tools / Secrets
+############################
+
+# dotnet user secrets
+secrets.json
+
+# dotnet tools
+.tools/
+
+############################
+# Other
+############################
+
+# Ignore publish output
+publish/
