@@ -54,16 +54,37 @@ namespace SmartAssetTracking.App.Services
         {
             using var db = new AssetDbContext();
 
-            var assets = db.Assets.ToList();
+            var assets = db.Assets
+                .OrderBy(a => a.AssetType)                 // Sort by category
+                .ThenByDescending(a => a.PurchaseDate)     // Sort by date (newest first)
+                .ToList();
 
-            Console.WriteLine("\n=== ASSET LIST ===");
-            Console.WriteLine("ID | Type | Brand | Model | Purchase Date | Status");
+            Console.WriteLine("\n=== COMPANY ASSETS ===");
+
+            string currentType = "";
 
             foreach (var a in assets)
             {
+                // Group header when category changes
+                if (currentType != a.AssetType)
+                {
+                    currentType = a.AssetType;
+                    Console.WriteLine($"\n--- {currentType.ToUpper()} ---");
+                }
+
                 string status = CalculateStatus(a.PurchaseDate);
 
-                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} | {a.ModelName} | {a.PurchaseDate:yyyy-MM-dd} | {status}");
+                // Highlighting (RED/YELLOW)
+                if (status == "RED")
+                    Console.ForegroundColor = ConsoleColor.Red;
+                else if (status == "YELLOW")
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                else
+                    Console.ResetColor();
+
+                Console.WriteLine($"{a.Id} | {a.Brand} | {a.ModelName} | {a.PurchaseDate:yyyy-MM-dd} | {status}");
+
+                Console.ResetColor();
             }
         }
 
