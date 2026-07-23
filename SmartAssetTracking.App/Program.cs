@@ -10,6 +10,7 @@ namespace SmartAssetTracking.App
             Console.Title = "Smart Asset Tracking System";
 
             var assetService = new AssetService();
+            var officeService = new OfficeService();   // <-- NYTT
 
             while (true)
             {
@@ -19,7 +20,11 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("2. Show All Assets");
                 Console.WriteLine("3. Update Asset");
                 Console.WriteLine("4. Delete Asset");
-                Console.WriteLine("5. Exit");
+                Console.WriteLine("5. Add Office");              // <-- NYTT
+                Console.WriteLine("6. Show Offices");            // <-- NYTT
+                Console.WriteLine("7. Assign Asset to Office");  // <-- NYTT
+                Console.WriteLine("8. Office Report");           // <-- NYTT
+                Console.WriteLine("9. Exit");
                 Console.Write("Choose option: ");
 
                 var choice = Console.ReadLine();
@@ -38,8 +43,23 @@ namespace SmartAssetTracking.App
                     case "4":
                         assetService.DeleteAsset();
                         break;
+
                     case "5":
+                        officeService.AddOffice();
+                        break;
+                    case "6":
+                        officeService.ShowOffices();
+                        break;
+                    case "7":
+                        officeService.AssignAssetToOffice();
+                        break;
+                    case "8":
+                        officeService.OfficeReport();
+                        break;
+
+                    case "9":
                         return;
+
                     default:
                         Console.WriteLine("Invalid choice.");
                         break;
