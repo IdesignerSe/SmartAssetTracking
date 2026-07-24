@@ -11,9 +11,18 @@ namespace SmartAssetTracking.App.Models
 
         // Purchase info
         public DateTime PurchaseDate { get; set; }
-        public decimal PurchasePrice { get; set; }
 
-        // Office relation
+        // Price in USD (required by PDF)
+        public decimal PurchasePriceUSD { get; set; }
+
+        // Converted local price (Level 3 requirement)
+        public decimal LocalPrice { get; set; }
+
+        // Required fields from PDF
+        public string SerialNumber { get; set; } = string.Empty;
+        public DateTime WarrantyExpiration { get; set; }
+
+        // Office relation (Level 3)
         public int OfficeId { get; set; }
         public Office Office { get; set; } = null!;
 
@@ -23,5 +32,21 @@ namespace SmartAssetTracking.App.Models
 
         // Maintenance tracking (Level 5)
         public List<MaintenanceRecord> MaintenanceRecords { get; set; } = new();
+
+        // Computed property for lifecycle (3 years lifetime)
+        public string LifecycleStatus
+        {
+            get
+            {
+                var lifetime = PurchaseDate.AddYears(3);
+                var remaining = lifetime - DateTime.Now;
+
+                if (remaining.TotalDays < 90)
+                    return "YELLOW";   // < 3 months
+                if (remaining.TotalDays < 180)
+                    return "RED";      // < 6 months
+                return "NORMAL";
+            }
+        }
     }
 }
