@@ -12,6 +12,9 @@ namespace SmartAssetTracking.App.Models
         // Purchase info
         public DateTime PurchaseDate { get; set; }
 
+        // ORIGINAL FIELD (required for your existing services)
+        public decimal PurchasePrice { get; set; }
+
         // Price in USD (required by PDF)
         public decimal PurchasePriceUSD { get; set; }
 
