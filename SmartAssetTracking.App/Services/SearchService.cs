@@ -13,7 +13,9 @@ namespace SmartAssetTracking.App.Services
             _context = context;
         }
 
+        // ============================
         // SEARCH ASSETS
+        // ============================
         public void SearchAssets()
         {
             Console.Clear();
@@ -48,7 +50,8 @@ namespace SmartAssetTracking.App.Services
                     break;
 
                 case 3:
-                    query = query.Where(a => a.Office.OfficeName.ToLower().Contains(term));
+                    query = query.Where(a => a.Office != null &&
+                                             a.Office.OfficeName.ToLower().Contains(term));
                     break;
 
                 default:
@@ -70,14 +73,16 @@ namespace SmartAssetTracking.App.Services
             {
                 Console.WriteLine(
                     $"{a.Id} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office.OfficeName} | {a.PurchasePrice:C}"
+                    $"{a.Office?.OfficeName ?? "No Office"} | {a.PurchasePrice:C}"
                 );
             }
 
             Console.ReadKey();
         }
 
+        // ============================
         // FILTER ASSETS
+        // ============================
         public void FilterAssets()
         {
             Console.Clear();
@@ -104,7 +109,7 @@ namespace SmartAssetTracking.App.Services
             switch (choice)
             {
                 case 1:
-                    Console.Write("Enter status: ");
+                    Console.Write("Enter status (RED/YELLOW/NORMAL): ");
                     string status = Console.ReadLine()?.ToUpper() ?? "";
 
                     var allAssets = query.ToList();
@@ -119,7 +124,8 @@ namespace SmartAssetTracking.App.Services
                     string office = Console.ReadLine()?.ToLower() ?? "";
 
                     results = query
-                        .Where(a => a.Office.OfficeName.ToLower().Contains(office))
+                        .Where(a => a.Office != null &&
+                                    a.Office.OfficeName.ToLower().Contains(office))
                         .ToList();
                     break;
 
@@ -173,14 +179,16 @@ namespace SmartAssetTracking.App.Services
             {
                 Console.WriteLine(
                     $"{a.Id} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office.OfficeName} | {a.PurchasePrice:C}"
+                    $"{a.Office?.OfficeName ?? "No Office"} | {a.PurchasePrice:C}"
                 );
             }
 
             Console.ReadKey();
         }
 
+        // ============================
         // SORT ASSETS
+        // ============================
         public void SortAssets()
         {
             Console.Clear();
@@ -227,7 +235,7 @@ namespace SmartAssetTracking.App.Services
                     break;
 
                 case 6:
-                    query = query.OrderBy(a => a.Office.OfficeName);
+                    query = query.OrderBy(a => a.Office != null ? a.Office.OfficeName : "");
                     break;
 
                 default:
@@ -242,13 +250,16 @@ namespace SmartAssetTracking.App.Services
             {
                 Console.WriteLine(
                     $"{a.Id} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office.OfficeName} | {a.PurchasePrice:C}"
+                    $"{a.Office?.OfficeName ?? "No Office"} | {a.PurchasePrice:C}"
                 );
             }
 
             Console.ReadKey();
         }
 
+        // ============================
+        // STATUS CALCULATION
+        // ============================
         private string CalculateStatus(DateTime purchaseDate)
         {
             var lifetime = purchaseDate.AddYears(3);

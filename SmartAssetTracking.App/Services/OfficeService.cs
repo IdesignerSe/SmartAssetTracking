@@ -28,7 +28,8 @@ namespace SmartAssetTracking.App.Services
             var office = new Office
             {
                 OfficeName = name,
-                Country = country
+                Country = country,
+                Assets = new List<Asset>() // ⭐ ensure non-null
             };
 
             _context.Offices.Add(office);
@@ -48,9 +49,17 @@ namespace SmartAssetTracking.App.Services
                 .Include(o => o.Assets)
                 .ToList();
 
+            if (!offices.Any())
+            {
+                Console.WriteLine("No offices found.");
+                Console.ReadKey();
+                return;
+            }
+
             foreach (var o in offices)
             {
-                Console.WriteLine($"{o.Id} | {o.OfficeName} ({o.Country}) | Assets: {o.Assets.Count}");
+                int count = o.Assets?.Count ?? 0;
+                Console.WriteLine($"{o.Id} | {o.OfficeName} ({o.Country}) | Assets: {count}");
             }
 
             Console.WriteLine("\nPress ENTER to continue...");
@@ -82,9 +91,16 @@ namespace SmartAssetTracking.App.Services
             var asset = _context.Assets.FirstOrDefault(a => a.Id == assetId);
             var office = _context.Offices.FirstOrDefault(o => o.Id == officeId);
 
-            if (asset == null || office == null)
+            if (asset == null)
             {
-                Console.WriteLine("Asset or office not found.");
+                Console.WriteLine("Asset not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            if (office == null)
+            {
+                Console.WriteLine("Office not found.");
                 Console.ReadKey();
                 return;
             }
@@ -157,8 +173,12 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            foreach (var asset in office.Assets)
-                _context.Assets.Remove(asset);
+            // ⭐ Remove assets safely
+            if (office.Assets != null)
+            {
+                foreach (var asset in office.Assets)
+                    _context.Assets.Remove(asset);
+            }
 
             _context.Offices.Remove(office);
             _context.SaveChanges();

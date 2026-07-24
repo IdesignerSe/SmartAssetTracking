@@ -50,12 +50,22 @@ namespace SmartAssetTracking.App.Services
             }
         }
 
+        // ============================
+        // CSV EXPORT
+        // ============================
         private void ExportCSV()
         {
             var assets = _context.Assets
                 .Include(a => a.Office)
                 .Include(a => a.Employee)
                 .ToList();
+
+            if (!assets.Any())
+            {
+                Console.WriteLine("No assets to export.");
+                Console.ReadKey();
+                return;
+            }
 
             string path = "assets_export.csv";
 
@@ -82,6 +92,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
+        // ============================
+        // JSON EXPORT
+        // ============================
         private void ExportJSON()
         {
             var assets = _context.Assets
@@ -89,9 +102,17 @@ namespace SmartAssetTracking.App.Services
                 .Include(a => a.Employee)
                 .ToList();
 
+            if (!assets.Any())
+            {
+                Console.WriteLine("No assets to export.");
+                Console.ReadKey();
+                return;
+            }
+
             string path = "assets_export.json";
 
-            var json = System.Text.Json.JsonSerializer.Serialize(assets,
+            var json = System.Text.Json.JsonSerializer.Serialize(
+                assets,
                 new System.Text.Json.JsonSerializerOptions
                 {
                     WriteIndented = true
@@ -103,6 +124,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
+        // ============================
+        // TXT EXPORT
+        // ============================
         private void ExportTXT()
         {
             var assets = _context.Assets
@@ -110,20 +134,33 @@ namespace SmartAssetTracking.App.Services
                 .Include(a => a.Employee)
                 .ToList();
 
+            if (!assets.Any())
+            {
+                Console.WriteLine("No assets to export.");
+                Console.ReadKey();
+                return;
+            }
+
             string path = "assets_export.txt";
 
             using var writer = new StreamWriter(path);
 
             writer.WriteLine("=== ASSET EXPORT ===");
+            writer.WriteLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}");
+            writer.WriteLine("----------------------------------------");
 
             foreach (var a in assets)
             {
                 writer.WriteLine(
-                    $"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office?.OfficeName ?? "None"} ({a.Office?.Country ?? "None"}) | " +
-                    $"{a.PurchasePrice:C} | " +
-                    $"{a.Employee?.FullName ?? "None"} | " +
-                    $"{a.PurchaseDate:yyyy-MM-dd}"
+                    $"ID: {a.Id}\n" +
+                    $"Type: {a.AssetType}\n" +
+                    $"Brand: {a.Brand}\n" +
+                    $"Model: {a.ModelName}\n" +
+                    $"Office: {a.Office?.OfficeName ?? "None"} ({a.Office?.Country ?? "None"})\n" +
+                    $"Price: {a.PurchasePrice:C}\n" +
+                    $"Employee: {a.Employee?.FullName ?? "None"}\n" +
+                    $"Purchase Date: {a.PurchaseDate:yyyy-MM-dd}\n" +
+                    $"----------------------------------------"
                 );
             }
 

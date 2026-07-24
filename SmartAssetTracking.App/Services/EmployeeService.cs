@@ -50,6 +50,13 @@ namespace SmartAssetTracking.App.Services
 
             var employees = _context.Employees.ToList();
 
+            if (!employees.Any())
+            {
+                Console.WriteLine("No employees found.");
+                Console.ReadKey();
+                return;
+            }
+
             foreach (var e in employees)
             {
                 Console.WriteLine($"{e.Id} | {e.FullName} | {e.Department} | {e.Email}");
@@ -116,12 +123,21 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            var employee = _context.Employees.FirstOrDefault(e => e.Id == id);
+            var employee = _context.Employees
+                .Include(e => e.AssignedAssets)
+                .FirstOrDefault(e => e.Id == id);
+
             if (employee == null)
             {
                 Console.WriteLine("Employee not found.");
                 Console.ReadKey();
                 return;
+            }
+
+            // Remove asset assignments
+            foreach (var asset in employee.AssignedAssets)
+            {
+                asset.EmployeeId = null;
             }
 
             _context.Employees.Remove(employee);
@@ -172,6 +188,9 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
+            // ⭐ FIX: Update FK relation
+            asset.EmployeeId = employee.Id;
+
             employee.AssignedAssets.Add(asset);
             _context.SaveChanges();
 
@@ -209,7 +228,7 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine($"Email: {employee.Email}");
             Console.WriteLine("\nAssigned Assets:");
 
-            if (employee.AssignedAssets.Count == 0)
+            if (!employee.AssignedAssets.Any())
             {
                 Console.WriteLine("No assets assigned.");
             }

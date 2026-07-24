@@ -1,5 +1,4 @@
 using SmartAssetTracking.App.Data;
-using SmartAssetTracking.App.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace SmartAssetTracking.App.Services
@@ -18,108 +17,109 @@ namespace SmartAssetTracking.App.Services
             Console.Clear();
             Console.WriteLine("=== DASHBOARD ===\n");
 
-            // Total assets
-            int totalAssets = _context.Assets.Count();
-            Console.WriteLine($"Total Assets: {totalAssets}");
-
-            // Total value
-            decimal totalValue = _context.Assets.Sum(a => a.PurchasePrice);
-            Console.WriteLine($"Total Asset Value: {totalValue:C}");
-
-            // Average price
-            decimal avgPrice = totalAssets > 0
-                ? _context.Assets.Average(a => a.PurchasePrice)
-                : 0;
-            Console.WriteLine($"Average Asset Price: {avgPrice:C}");
-
-            // Most expensive asset
-            var mostExpensive = _context.Assets
-                .OrderByDescending(a => a.PurchasePrice)
-                .FirstOrDefault();
-
-            if (mostExpensive != null)
-            {
-                Console.WriteLine($"Most Expensive Asset: {mostExpensive.Brand} {mostExpensive.ModelName} ({mostExpensive.PurchasePrice:C})");
-            }
-
-            // Cheapest asset
-            var cheapest = _context.Assets
-                .OrderBy(a => a.PurchasePrice)
-                .FirstOrDefault();
-
-            if (cheapest != null)
-            {
-                Console.WriteLine($"Cheapest Asset: {cheapest.Brand} {cheapest.ModelName} ({cheapest.PurchasePrice:C})");
-            }
-
-            // Most common asset type
-            var commonType = _context.Assets
-                .GroupBy(a => a.AssetType)
-                .OrderByDescending(g => g.Count())
-                .Select(g => new { Type = g.Key, Count = g.Count() })
-                .FirstOrDefault();
-
-            if (commonType != null)
-            {
-                Console.WriteLine($"Most Common Asset Type: {commonType.Type} ({commonType.Count} items)");
-            }
-
-            Console.WriteLine("\n--- Assets Per Office ---");
-
-            var assetsPerOffice = _context.Assets
-                .Include(a => a.Office)
-                .GroupBy(a => a.Office.OfficeName)
-                .Select(g => new { Office = g.Key, Count = g.Count() })
-                .ToList();
-
-            foreach (var o in assetsPerOffice)
-            {
-                Console.WriteLine($"{o.Office}: {o.Count} assets");
-            }
-
-            Console.WriteLine("\n--- Assets Per Employee ---");
-
-            var assetsPerEmployee = _context.Assets
-                .Include(a => a.Employee)
-                .Where(a => a.Employee != null)
-                .GroupBy(a => a.Employee!.FullName)
-                .Select(g => new { Employee = g.Key, Count = g.Count() })
-                .ToList();
-
-            if (assetsPerEmployee.Count == 0)
-            {
-                Console.WriteLine("No assets assigned to employees.");
-            }
-            else
-            {
-                foreach (var e in assetsPerEmployee)
-                {
-                    Console.WriteLine($"{e.Employee}: {e.Count} assets");
-                }
-            }
-
-            Console.WriteLine("\n--- Upcoming Maintenance (Next 30 Days) ---");
-
-            var upcomingMaintenance = _context.MaintenanceRecords
-                .Include(m => m.Asset)
-                .Where(m => m.NextMaintenanceDate <= DateTime.Now.AddDays(30))
-                .OrderBy(m => m.NextMaintenanceDate)
-                .ToList();
-
-            if (upcomingMaintenance.Count == 0)
-            {
-                Console.WriteLine("No upcoming maintenance.");
-            }
-            else
-            {
-                foreach (var m in upcomingMaintenance)
-                {
-                    Console.WriteLine($"{m.Asset.Brand} {m.Asset.ModelName} → {m.NextMaintenanceDate:yyyy-MM-dd} | {m.Notes}");
-                }
-            }
+            ShowAssetCount();
+            ShowOfficeSummary();
+            ShowEmployeeSummary();
+            ShowMaintenanceSummary();
 
             Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
+        }
+
+        // ============================
+        // TOTAL ASSETS
+        // ============================
+        private void ShowAssetCount()
+        {
+            int totalAssets = _context.Assets.Count();
+            Console.WriteLine($"Total Assets: {totalAssets}");
+        }
+
+        // ============================
+        // OFFICE SUMMARY
+        // ============================
+        private void ShowOfficeSummary()
+        {
+            Console.WriteLine("\n--- Offices ---");
+
+            var offices = _context.Offices
+                .Include(o => o.Assets)
+                .ToList();
+
+            if (!offices.Any())
+            {
+                Console.WriteLine("No offices found.");
+                return;
+            }
+
+            foreach (var office in offices)
+            {
+                int assetCount = office.Assets?.Count ?? 0;
+
+                Console.WriteLine(
+                    $"{office.Id}. {office.OfficeName} ({office.Country}) → {assetCount} assets"
+                );
+            }
+        }
+
+        // ============================
+        // EMPLOYEE SUMMARY
+        // ============================
+        private void ShowEmployeeSummary()
+        {
+            Console.WriteLine("\n--- Employees ---");
+
+            var employees = _context.Employees
+                .Include(e => e.AssignedAssets)
+                .ToList();
+
+            if (!employees.Any())
+            {
+                Console.WriteLine("No employees found.");
+                return;
+            }
+
+            foreach (var emp in employees)
+            {
+                int assigned = emp.AssignedAssets.Count;
+
+                Console.WriteLine(
+                    $"{emp.Id}. {emp.FullName} ({emp.Department}) → {assigned} assets"
+                );
+            }
+        }
+
+        // ============================
+        // MAINTENANCE SUMMARY
+        // ============================
+        private void ShowMaintenanceSummary()
+        {
+            Console.WriteLine("\n--- Maintenance ---");
+
+            var records = _context.MaintenanceRecords
+                .Include(r => r.Asset)
+                .ToList();
+
+            if (!records.Any())
+            {
+                Console.WriteLine("No maintenance records found.");
+                return;
+            }
+
+            decimal totalCost = records.Sum(r => r.Cost);
+            DateTime lastMaintenance = records.Max(r => r.Date);
+
+            Console.WriteLine($"Total Maintenance Cost: {totalCost:C}");
+            Console.WriteLine($"Last Maintenance Date: {lastMaintenance:yyyy-MM-dd}");
+
+            Console.WriteLine("\nRecent Records:");
+            foreach (var r in records.OrderByDescending(r => r.Date).Take(5))
+            {
+                Console.WriteLine(
+                    $"{r.Id} | {r.Asset.Brand} {r.Asset.ModelName} | " +
+                    $"{r.Description} | Cost: {r.Cost:C} | Date: {r.Date:yyyy-MM-dd}"
+                );
+            }
         }
     }
 }

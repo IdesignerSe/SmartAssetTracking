@@ -39,9 +39,21 @@ namespace SmartAssetTracking.App.Services
                 : 0;
 
             Console.Write("Office ID: ");
-            int officeId = int.TryParse(Console.ReadLine(), out var oid)
-                ? oid
-                : 0;
+            if (!int.TryParse(Console.ReadLine(), out int officeId))
+            {
+                Console.WriteLine("Invalid Office ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            // ⭐ Check if office exists
+            var office = _context.Offices.FirstOrDefault(o => o.Id == officeId);
+            if (office == null)
+            {
+                Console.WriteLine("Office not found. Cannot add asset.");
+                Console.ReadKey();
+                return;
+            }
 
             var asset = new Asset
             {
@@ -71,10 +83,18 @@ namespace SmartAssetTracking.App.Services
                 .Include(a => a.Employee)
                 .ToList();
 
+            if (!assets.Any())
+            {
+                Console.WriteLine("No assets found.");
+                Console.ReadKey();
+                return;
+            }
+
             foreach (var a in assets)
             {
                 Console.WriteLine(
-                    $"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.PurchasePrice:C} | Office: {a.Office.OfficeName} | Employee: {a.Employee?.FullName ?? "None"}"
+                    $"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.PurchasePrice:C} | " +
+                    $"Office: {a.Office.OfficeName} | Employee: {a.Employee?.FullName ?? "None"}"
                 );
             }
 
