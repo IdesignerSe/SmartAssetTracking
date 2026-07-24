@@ -134,7 +134,6 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            // Remove asset assignments
             foreach (var asset in employee.AssignedAssets)
             {
                 asset.EmployeeId = null;
@@ -285,6 +284,32 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine($"Highest Asset Value: {highestValue.FullName} ({highestValue.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0:C})");
 
             Console.WriteLine("\nPress ENTER to continue...");
+            Console.ReadKey();
+        }
+
+        // ============================
+        // MASS INSERT: 10 EMPLOYEES
+        // ============================
+        public void Add10Employees()
+        {
+            Console.Clear();
+            Console.WriteLine("=== MASS INSERT: 10 EMPLOYEES ===");
+
+            for (int i = 1; i <= 10; i++)
+            {
+                var employee = new Employee
+                {
+                    FullName = $"Employee {i}",
+                    Department = "IT",
+                    Email = $"employee{i}@company.com"
+                };
+
+                _context.Employees.Add(employee);
+            }
+
+            _context.SaveChanges();
+
+            Console.WriteLine("10 employees added!");
             Console.ReadKey();
         }
     }

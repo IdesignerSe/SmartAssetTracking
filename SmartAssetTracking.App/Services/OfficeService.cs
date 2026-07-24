@@ -225,5 +225,31 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("Office deleted!");
             Console.ReadKey();
         }
+
+        // ============================
+        // MASS INSERT: 10 OFFICES
+        // ============================
+        public void Add10Offices()
+        {
+            Console.Clear();
+            Console.WriteLine("=== MASS INSERT: 10 OFFICES ===");
+
+            for (int i = 1; i <= 10; i++)
+            {
+                var office = new Office
+                {
+                    OfficeName = $"Office {i}",
+                    Country = "Sweden",
+                    Assets = new List<Asset>()
+                };
+
+                _context.Offices.Add(office);
+            }
+
+            _context.SaveChanges();
+
+            Console.WriteLine("10 offices added!");
+            Console.ReadKey();
+        }
     }
 }

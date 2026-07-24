@@ -225,5 +225,42 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
         }
+
+        // ============================
+        // MASS INSERT: 10 ASSETS
+        // ============================
+        public void Add10Assets()
+        {
+            Console.Clear();
+            Console.WriteLine("=== MASS INSERT: 10 ASSETS ===");
+
+            var firstOffice = _context.Offices.FirstOrDefault();
+            if (firstOffice == null)
+            {
+                Console.WriteLine("No offices found. Add at least one office first.");
+                Console.ReadKey();
+                return;
+            }
+
+            for (int i = 1; i <= 10; i++)
+            {
+                var asset = new Asset
+                {
+                    AssetType = "Laptop",
+                    Brand = $"Brand {i}",
+                    ModelName = $"Model {i}",
+                    PurchaseDate = DateTime.Now.AddDays(-i),
+                    PurchasePrice = 5000 + (i * 100),
+                    OfficeId = firstOffice.Id
+                };
+
+                _context.Assets.Add(asset);
+            }
+
+            _context.SaveChanges();
+
+            Console.WriteLine("10 assets added!");
+            Console.ReadKey();
+        }
     }
 }
