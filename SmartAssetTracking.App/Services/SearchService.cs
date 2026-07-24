@@ -6,28 +6,36 @@ namespace SmartAssetTracking.App.Services
 {
     public class SearchService
     {
+        private readonly AssetDbContext _context;
+
+        public SearchService(AssetDbContext context)
+        {
+            _context = context;
+        }
+
+        // SEARCH ASSETS
         public void SearchAssets()
         {
-            using var db = new AssetDbContext();
-
-            Console.WriteLine("\nSearch by:");
+            Console.Clear();
+            Console.WriteLine("=== SEARCH ASSETS ===");
             Console.WriteLine("1. Brand");
             Console.WriteLine("2. Model");
-            Console.WriteLine("3. Serial Number");
-            Console.WriteLine("4. Office");
+            Console.WriteLine("3. Office");
             Console.Write("Choose: ");
 
-            string input = Console.ReadLine()!;
-            if (!int.TryParse(input, out int choice))
+            if (!int.TryParse(Console.ReadLine(), out int choice))
             {
                 Console.WriteLine("Invalid input.");
+                Console.ReadKey();
                 return;
             }
 
             Console.Write("Enter search term: ");
-            string term = Console.ReadLine()!.ToLower();
+            string term = Console.ReadLine()?.ToLower() ?? "";
 
-            var query = db.Assets.Include(a => a.Office).AsQueryable();
+            var query = _context.Assets
+                .Include(a => a.Office)
+                .AsQueryable();
 
             switch (choice)
             {
@@ -40,10 +48,6 @@ namespace SmartAssetTracking.App.Services
                     break;
 
                 case 3:
-                    query = query.Where(a => a.SerialNumber.ToLower().Contains(term));
-                    break;
-
-                case 4:
                     query = query.Where(a => a.Office.OfficeName.ToLower().Contains(term));
                     break;
 
@@ -57,47 +61,52 @@ namespace SmartAssetTracking.App.Services
             if (!results.Any())
             {
                 Console.WriteLine("No results found.");
+                Console.ReadKey();
                 return;
             }
 
-            Console.WriteLine("\n=== SEARCH RESULTS ===");
+            Console.WriteLine("\n=== RESULTS ===");
             foreach (var a in results)
             {
                 Console.WriteLine(
                     $"{a.Id} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office.OfficeName} | {a.LocalPrice} {a.Office.Currency}"
+                    $"{a.Office.OfficeName} | {a.PurchasePrice:C}"
                 );
             }
+
+            Console.ReadKey();
         }
 
+        // FILTER ASSETS
         public void FilterAssets()
         {
-            using var db = new AssetDbContext();
-
-            Console.WriteLine("\nFilter by:");
+            Console.Clear();
+            Console.WriteLine("=== FILTER ASSETS ===");
             Console.WriteLine("1. Status (RED/YELLOW/NORMAL)");
             Console.WriteLine("2. Office");
             Console.WriteLine("3. Price Range");
             Console.WriteLine("4. Purchase Year");
             Console.Write("Choose: ");
 
-            string input = Console.ReadLine()!;
-            if (!int.TryParse(input, out int choice))
+            if (!int.TryParse(Console.ReadLine(), out int choice))
             {
                 Console.WriteLine("Invalid input.");
+                Console.ReadKey();
                 return;
             }
 
-            var query = db.Assets.Include(a => a.Office).AsQueryable();
-            List<Asset> results = new List<Asset>();
+            var query = _context.Assets
+                .Include(a => a.Office)
+                .AsQueryable();
+
+            List<Asset> results = new();
 
             switch (choice)
             {
                 case 1:
-                    Console.Write("Enter status (RED/YELLOW/NORMAL): ");
-                    string status = Console.ReadLine()!.ToUpper();
+                    Console.Write("Enter status: ");
+                    string status = Console.ReadLine()?.ToUpper() ?? "";
 
-                    // EF cannot translate CalculateStatus → do client-side filtering
                     var allAssets = query.ToList();
 
                     results = allAssets
@@ -107,7 +116,7 @@ namespace SmartAssetTracking.App.Services
 
                 case 2:
                     Console.Write("Enter office name: ");
-                    string office = Console.ReadLine()!.ToLower();
+                    string office = Console.ReadLine()?.ToLower() ?? "";
 
                     results = query
                         .Where(a => a.Office.OfficeName.ToLower().Contains(office))
@@ -130,7 +139,7 @@ namespace SmartAssetTracking.App.Services
                     }
 
                     results = query
-                        .Where(a => a.LocalPrice >= min && a.LocalPrice <= max)
+                        .Where(a => a.PurchasePrice >= min && a.PurchasePrice <= max)
                         .ToList();
                     break;
 
@@ -155,6 +164,7 @@ namespace SmartAssetTracking.App.Services
             if (!results.Any())
             {
                 Console.WriteLine("No results found.");
+                Console.ReadKey();
                 return;
             }
 
@@ -163,16 +173,18 @@ namespace SmartAssetTracking.App.Services
             {
                 Console.WriteLine(
                     $"{a.Id} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office.OfficeName} | {a.LocalPrice} {a.Office.Currency}"
+                    $"{a.Office.OfficeName} | {a.PurchasePrice:C}"
                 );
             }
+
+            Console.ReadKey();
         }
 
+        // SORT ASSETS
         public void SortAssets()
         {
-            using var db = new AssetDbContext();
-
-            Console.WriteLine("\nSort by:");
+            Console.Clear();
+            Console.WriteLine("=== SORT ASSETS ===");
             Console.WriteLine("1. Price (Low → High)");
             Console.WriteLine("2. Price (High → Low)");
             Console.WriteLine("3. Purchase Date (Newest)");
@@ -181,23 +193,25 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("6. Office");
             Console.Write("Choose: ");
 
-            string input = Console.ReadLine()!;
-            if (!int.TryParse(input, out int choice))
+            if (!int.TryParse(Console.ReadLine(), out int choice))
             {
                 Console.WriteLine("Invalid input.");
+                Console.ReadKey();
                 return;
             }
 
-            var query = db.Assets.Include(a => a.Office).AsQueryable();
+            var query = _context.Assets
+                .Include(a => a.Office)
+                .AsQueryable();
 
             switch (choice)
             {
                 case 1:
-                    query = query.OrderBy(a => a.LocalPrice);
+                    query = query.OrderBy(a => a.PurchasePrice);
                     break;
 
                 case 2:
-                    query = query.OrderByDescending(a => a.LocalPrice);
+                    query = query.OrderByDescending(a => a.PurchasePrice);
                     break;
 
                 case 3:
@@ -228,9 +242,11 @@ namespace SmartAssetTracking.App.Services
             {
                 Console.WriteLine(
                     $"{a.Id} | {a.Brand} {a.ModelName} | " +
-                    $"{a.Office.OfficeName} | {a.LocalPrice} {a.Office.Currency}"
+                    $"{a.Office.OfficeName} | {a.PurchasePrice:C}"
                 );
             }
+
+            Console.ReadKey();
         }
 
         private string CalculateStatus(DateTime purchaseDate)

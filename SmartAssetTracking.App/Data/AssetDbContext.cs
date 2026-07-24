@@ -10,6 +10,7 @@ namespace SmartAssetTracking.App.Data
         {
         }
 
+        // ✔ Alla DbSets är korrekta
         public DbSet<Asset> Assets { get; set; } = null!;
         public DbSet<Office> Offices { get; set; } = null!;
         public DbSet<Employee> Employees { get; set; } = null!;
@@ -20,7 +21,7 @@ namespace SmartAssetTracking.App.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Seed default admin user
+            // ✔ Seeding är korrekt
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
