@@ -4,11 +4,11 @@ namespace SmartAssetTracking.App.Models
     {
         public int Id { get; set; }
 
-        public string? FullName { get; set; }
-        public string? Department { get; set; }
-        public string? Email { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
         // Relation: Employee → Assets
-        public List<Asset>? AssignedAssets { get; set; }
+        public List<Asset> AssignedAssets { get; set; } = new();
     }
 }
