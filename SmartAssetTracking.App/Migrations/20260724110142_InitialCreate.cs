@@ -17,9 +17,9 @@ namespace SmartAssetTracking.App.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    FullName = table.Column<string>(type: "TEXT", nullable: false),
-                    Department = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false)
+                    FullName = table.Column<string>(type: "TEXT", nullable: true),
+                    Department = table.Column<string>(type: "TEXT", nullable: true),
+                    Email = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -32,9 +32,9 @@ namespace SmartAssetTracking.App.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    OfficeName = table.Column<string>(type: "TEXT", nullable: false),
-                    Country = table.Column<string>(type: "TEXT", nullable: false),
-                    Currency = table.Column<string>(type: "TEXT", nullable: false)
+                    OfficeName = table.Column<string>(type: "TEXT", nullable: true),
+                    Country = table.Column<string>(type: "TEXT", nullable: true),
+                    Currency = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -47,17 +47,24 @@ namespace SmartAssetTracking.App.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    AssetType = table.Column<string>(type: "TEXT", nullable: false),
-                    Brand = table.Column<string>(type: "TEXT", nullable: false),
-                    ModelName = table.Column<string>(type: "TEXT", nullable: false),
+                    AssetType = table.Column<string>(type: "TEXT", nullable: true),
+                    Brand = table.Column<string>(type: "TEXT", nullable: true),
+                    ModelName = table.Column<string>(type: "TEXT", nullable: true),
+                    SerialNumber = table.Column<string>(type: "TEXT", nullable: true),
                     PurchaseDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     PurchasePriceUSD = table.Column<decimal>(type: "TEXT", nullable: false),
-                    LocalPrice = table.Column<decimal>(type: "TEXT", nullable: false),
-                    SerialNumber = table.Column<string>(type: "TEXT", nullable: false),
-                    EmployeeId = table.Column<int>(type: "INTEGER", nullable: true),
+                    LocalPrice = table.Column<decimal>(type: "NUMERIC", nullable: false),
                     WarrantyExpiration = table.Column<DateTime>(type: "TEXT", nullable: false),
                     OfficeId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Discriminator = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false)
+                    EmployeeId = table.Column<int>(type: "INTEGER", nullable: true),
+                    Discriminator = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false),
+                    CPU = table.Column<string>(type: "TEXT", nullable: true),
+                    RAM = table.Column<string>(type: "TEXT", nullable: true),
+                    Storage = table.Column<string>(type: "TEXT", nullable: true),
+                    GPU = table.Column<string>(type: "TEXT", nullable: true),
+                    OperatingSystem = table.Column<string>(type: "TEXT", nullable: true),
+                    ScreenSize = table.Column<string>(type: "TEXT", nullable: true),
+                    BatteryCapacity = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -66,13 +73,14 @@ namespace SmartAssetTracking.App.Migrations
                         name: "FK_Assets_Employees_EmployeeId",
                         column: x => x.EmployeeId,
                         principalTable: "Employees",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Assets_Offices_OfficeId",
                         column: x => x.OfficeId,
                         principalTable: "Offices",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -81,10 +89,10 @@ namespace SmartAssetTracking.App.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    AssetId = table.Column<int>(type: "INTEGER", nullable: false),
-                    LastMaintenance = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    NextMaintenance = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Notes = table.Column<string>(type: "TEXT", nullable: false)
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    Cost = table.Column<decimal>(type: "TEXT", nullable: false),
+                    AssetId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

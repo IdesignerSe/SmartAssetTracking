@@ -12,8 +12,8 @@ namespace SmartAssetTracking.App.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            // ⭐ If you want DB inside /Data folder, change to: "Data Source=Data/assets.db"
-            options.UseSqlite("Data Source=assets.db");
+            // ⭐ Databasen hamnar nu i SmartAssetTracking.App/Data/
+            options.UseSqlite("Data Source=Data/assets.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -22,7 +22,7 @@ namespace SmartAssetTracking.App.Data
             modelBuilder.Entity<ComputerAsset>().HasBaseType<Asset>();
             modelBuilder.Entity<MobileAsset>().HasBaseType<Asset>();
 
-            // ⭐ FIX: Force LocalPrice to be NUMERIC (prevents sorting crash)
+            // ⭐ Force LocalPrice to be NUMERIC (prevents sorting crash)
             modelBuilder.Entity<Asset>()
                 .Property(a => a.LocalPrice)
                 .HasColumnType("NUMERIC");

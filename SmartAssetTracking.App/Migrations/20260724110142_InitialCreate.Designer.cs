@@ -11,7 +11,7 @@ using SmartAssetTracking.App.Data;
 namespace SmartAssetTracking.App.Migrations
 {
     [DbContext(typeof(AssetDbContext))]
-    [Migration("20260723083348_InitialCreate")]
+    [Migration("20260724110142_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,11 +27,9 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("AssetType")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Brand")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Discriminator")
@@ -43,10 +41,9 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("LocalPrice")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("NUMERIC");
 
                     b.Property<string>("ModelName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("OfficeId")
@@ -59,7 +56,6 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SerialNumber")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("WarrantyExpiration")
@@ -85,15 +81,12 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Department")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -110,14 +103,13 @@ namespace SmartAssetTracking.App.Migrations
                     b.Property<int>("AssetId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("LastMaintenance")
+                    b.Property<decimal>("Cost")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("NextMaintenance")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Notes")
-                        .IsRequired()
+                    b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -134,15 +126,12 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Country")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Currency")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("OfficeName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -154,12 +143,33 @@ namespace SmartAssetTracking.App.Migrations
                 {
                     b.HasBaseType("SmartAssetTracking.App.Models.Asset");
 
+                    b.Property<string>("CPU")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GPU")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RAM")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Storage")
+                        .HasColumnType("TEXT");
+
                     b.HasDiscriminator().HasValue("ComputerAsset");
                 });
 
             modelBuilder.Entity("SmartAssetTracking.App.Models.MobileAsset", b =>
                 {
                     b.HasBaseType("SmartAssetTracking.App.Models.Asset");
+
+                    b.Property<string>("BatteryCapacity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ScreenSize")
+                        .HasColumnType("TEXT");
 
                     b.HasDiscriminator().HasValue("MobileAsset");
                 });
@@ -168,12 +178,13 @@ namespace SmartAssetTracking.App.Migrations
                 {
                     b.HasOne("SmartAssetTracking.App.Models.Employee", "AssignedEmployee")
                         .WithMany("AssignedAssets")
-                        .HasForeignKey("EmployeeId");
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SmartAssetTracking.App.Models.Office", "Office")
                         .WithMany("Assets")
                         .HasForeignKey("OfficeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssignedEmployee");
