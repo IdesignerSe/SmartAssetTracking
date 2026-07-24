@@ -9,7 +9,7 @@ namespace SmartAssetTracking.App
             var assetService = new AssetService();
             var officeService = new OfficeService();
             var searchService = new SearchService();
-            var exportService = new ExportService();   // ⭐ NEW
+            var exportService = new ExportService();   // Export system
 
             while (true)
             {
@@ -27,11 +27,11 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("10. Search Assets");
                 Console.WriteLine("11. Filter Assets");
                 Console.WriteLine("12. Sort Assets");
-                Console.WriteLine("13. Export Assets");   // ⭐ NEW
-                Console.WriteLine("14. Exit");            // ⭐ ALWAYS LAST
+                Console.WriteLine("13. Export Assets");
+                Console.WriteLine("14. Exit");
                 Console.Write("Choose option: ");
 
-                string input = Console.ReadLine()!;
+                string input = Console.ReadLine() ?? string.Empty;
 
                 if (!int.TryParse(input, out int option))
                 {
