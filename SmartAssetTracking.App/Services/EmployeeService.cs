@@ -1,5 +1,6 @@
 using SmartAssetTracking.App.Data;
 using SmartAssetTracking.App.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SmartAssetTracking.App.Services
 {
@@ -127,6 +128,100 @@ namespace SmartAssetTracking.App.Services
             _context.SaveChanges();
 
             Console.WriteLine("Employee deleted!");
+            Console.ReadKey();
+        }
+
+        // ASSIGN ASSET TO EMPLOYEE
+        public void AssignAssetToEmployee()
+        {
+            Console.Clear();
+            Console.WriteLine("=== ASSIGN ASSET TO EMPLOYEE ===");
+
+            Console.Write("Enter Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int employeeId))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var employee = _context.Employees
+                .Include(e => e.AssignedAssets)
+                .FirstOrDefault(e => e.Id == employeeId);
+
+            if (employee == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("Enter Asset ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int assetId))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var asset = _context.Assets.FirstOrDefault(a => a.Id == assetId);
+            if (asset == null)
+            {
+                Console.WriteLine("Asset not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            employee.AssignedAssets.Add(asset);
+            _context.SaveChanges();
+
+            Console.WriteLine($"Asset '{asset.Brand} {asset.ModelName}' assigned to {employee.FullName}.");
+            Console.ReadKey();
+        }
+
+        // SHOW EMPLOYEE ASSETS
+        public void ShowEmployeeAssets()
+        {
+            Console.Clear();
+            Console.WriteLine("=== EMPLOYEE ASSETS ===");
+
+            Console.Write("Enter Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var employee = _context.Employees
+                .Include(e => e.AssignedAssets)
+                .FirstOrDefault(e => e.Id == id);
+
+            if (employee == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"\nEmployee: {employee.FullName}");
+            Console.WriteLine($"Department: {employee.Department}");
+            Console.WriteLine($"Email: {employee.Email}");
+            Console.WriteLine("\nAssigned Assets:");
+
+            if (employee.AssignedAssets.Count == 0)
+            {
+                Console.WriteLine("No assets assigned.");
+            }
+            else
+            {
+                foreach (var asset in employee.AssignedAssets)
+                {
+                    Console.WriteLine($"{asset.Id} | {asset.Brand} | {asset.ModelName} | {asset.AssetType}");
+                }
+            }
+
+            Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
         }
     }
