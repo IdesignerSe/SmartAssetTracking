@@ -113,7 +113,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // READ (UPDATED FOR INHERITANCE)
+        // READ (UPDATED FOR INHERITANCE + MAINTENANCE)
         // ============================================================
         public void ShowAssets()
         {
@@ -123,6 +123,7 @@ namespace SmartAssetTracking.App.Services
             var assets = _context.Assets
                 .Include(a => a.Office)
                 .Include(a => a.Employee)
+                .Include(a => a.MaintenanceRecords)
                 .ToList();
 
             if (!assets.Any())
@@ -165,6 +166,16 @@ namespace SmartAssetTracking.App.Services
                     Console.WriteLine($"Operating System: {mob.OperatingSystem}");
                     Console.WriteLine($"Screen Size: {mob.ScreenSize}");
                     Console.WriteLine($"Battery Capacity: {mob.BatteryCapacity}");
+                }
+
+                // Maintenance records
+                if (a.MaintenanceRecords.Any())
+                {
+                    Console.WriteLine("---- Maintenance ----");
+                    foreach (var m in a.MaintenanceRecords)
+                    {
+                        Console.WriteLine($"{m.Date:yyyy-MM-dd} | {m.Description} | {m.Cost:C}");
+                    }
                 }
             }
 
@@ -292,7 +303,103 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // ASSET REPORT (UPDATED FOR INHERITANCE)
+        // ADD MAINTENANCE RECORD (NEW IN STEP 11)
+        // ============================================================
+        public void AddMaintenanceRecord()
+        {
+            Console.Clear();
+            Console.WriteLine("=== ADD MAINTENANCE RECORD ===");
+
+            Console.Write("Enter Asset ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var asset = _context.Assets
+                .Include(a => a.MaintenanceRecords)
+                .FirstOrDefault(a => a.Id == id);
+
+            if (asset == null)
+            {
+                Console.WriteLine("Asset not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("Maintenance Description: ");
+            string description = Console.ReadLine() ?? "";
+
+            Console.Write("Maintenance Cost: ");
+            decimal cost = decimal.TryParse(Console.ReadLine(), out var c) ? c : 0;
+
+            var record = new MaintenanceRecord
+            {
+                Date = DateTime.Now,
+                Description = description,
+                Cost = cost,
+                AssetId = asset.Id
+            };
+
+            asset.MaintenanceRecords.Add(record);
+            _context.SaveChanges();
+
+            Console.WriteLine("Maintenance record added!");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // SHOW MAINTENANCE HISTORY (NEW IN STEP 11)
+        // ============================================================
+        public void ShowMaintenance()
+        {
+            Console.Clear();
+            Console.WriteLine("=== MAINTENANCE HISTORY ===");
+
+            Console.Write("Enter Asset ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var asset = _context.Assets
+                .Include(a => a.MaintenanceRecords)
+                .FirstOrDefault(a => a.Id == id);
+
+            if (asset == null)
+            {
+                Console.WriteLine("Asset not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"Maintenance for {asset.Brand} {asset.ModelName}:");
+
+            if (!asset.MaintenanceRecords.Any())
+            {
+                Console.WriteLine("No maintenance records.");
+                Console.ReadKey();
+                return;
+            }
+
+            foreach (var m in asset.MaintenanceRecords)
+            {
+                Console.WriteLine("----------------------------------------");
+                Console.WriteLine($"Date: {m.Date:yyyy-MM-dd}");
+                Console.WriteLine($"Description: {m.Description}");
+                Console.WriteLine($"Cost: {m.Cost:C}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // ASSET REPORT (UPDATED FOR MAINTENANCE)
         // ============================================================
         public void AssetReport()
         {
@@ -302,6 +409,7 @@ namespace SmartAssetTracking.App.Services
             var assets = _context.Assets
                 .Include(a => a.Office)
                 .Include(a => a.Employee)
+                .Include(a => a.MaintenanceRecords)
                 .ToList();
 
             if (!assets.Any())
@@ -357,6 +465,15 @@ namespace SmartAssetTracking.App.Services
                     Console.WriteLine($"OS: {mob.OperatingSystem}");
                     Console.WriteLine($"Screen: {mob.ScreenSize}");
                     Console.WriteLine($"Battery: {mob.BatteryCapacity}");
+                }
+
+                if (a.MaintenanceRecords.Any())
+                {
+                    Console.WriteLine("---- Maintenance ----");
+                    foreach (var m in a.MaintenanceRecords)
+                    {
+                        Console.WriteLine($"{m.Date:yyyy-MM-dd} | {m.Description} | {m.Cost:C}");
+                    }
                 }
             }
 

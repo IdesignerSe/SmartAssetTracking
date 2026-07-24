@@ -13,245 +13,47 @@ namespace SmartAssetTracking.App.Services
             _context = context;
         }
 
-        // CREATE
+        // ============================================================
+        // ADD EMPLOYEE
+        // ============================================================
         public void AddEmployee()
         {
             Console.Clear();
             Console.WriteLine("=== ADD EMPLOYEE ===");
 
             Console.Write("Full Name: ");
-            string fullName = Console.ReadLine() ?? string.Empty;
+            string name = Console.ReadLine() ?? "";
 
             Console.Write("Department: ");
-            string department = Console.ReadLine() ?? string.Empty;
+            string dept = Console.ReadLine() ?? "";
 
             Console.Write("Email: ");
-            string email = Console.ReadLine() ?? string.Empty;
+            string email = Console.ReadLine() ?? "";
 
-            var employee = new Employee
+            var emp = new Employee
             {
-                FullName = fullName,
-                Department = department,
+                FullName = name,
+                Department = dept,
                 Email = email
             };
 
-            _context.Employees.Add(employee);
+            _context.Employees.Add(emp);
             _context.SaveChanges();
 
             Console.WriteLine("Employee added!");
             Console.ReadKey();
         }
 
-        // READ
+        // ============================================================
+        // SHOW ALL EMPLOYEES
+        // ============================================================
         public void ShowEmployees()
         {
             Console.Clear();
             Console.WriteLine("=== EMPLOYEES ===");
 
-            var employees = _context.Employees.ToList();
-
-            if (!employees.Any())
-            {
-                Console.WriteLine("No employees found.");
-                Console.ReadKey();
-                return;
-            }
-
-            foreach (var e in employees)
-            {
-                Console.WriteLine($"{e.Id} | {e.FullName} | {e.Department} | {e.Email}");
-            }
-
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.ReadKey();
-        }
-
-        // UPDATE
-        public void UpdateEmployee()
-        {
-            Console.Clear();
-            Console.WriteLine("=== UPDATE EMPLOYEE ===");
-
-            Console.Write("Enter Employee ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int id))
-            {
-                Console.WriteLine("Invalid ID.");
-                Console.ReadKey();
-                return;
-            }
-
-            var employee = _context.Employees.FirstOrDefault(e => e.Id == id);
-            if (employee == null)
-            {
-                Console.WriteLine("Employee not found.");
-                Console.ReadKey();
-                return;
-            }
-
-            Console.Write($"Full Name ({employee.FullName}): ");
-            string? fullName = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(fullName))
-                employee.FullName = fullName;
-
-            Console.Write($"Department ({employee.Department}): ");
-            string? department = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(department))
-                employee.Department = department;
-
-            Console.Write($"Email ({employee.Email}): ");
-            string? email = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(email))
-                employee.Email = email;
-
-            _context.SaveChanges();
-
-            Console.WriteLine("Employee updated!");
-            Console.ReadKey();
-        }
-
-        // DELETE
-        public void DeleteEmployee()
-        {
-            Console.Clear();
-            Console.WriteLine("=== DELETE EMPLOYEE ===");
-
-            Console.Write("Enter Employee ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int id))
-            {
-                Console.WriteLine("Invalid ID.");
-                Console.ReadKey();
-                return;
-            }
-
-            var employee = _context.Employees
-                .Include(e => e.AssignedAssets)
-                .FirstOrDefault(e => e.Id == id);
-
-            if (employee == null)
-            {
-                Console.WriteLine("Employee not found.");
-                Console.ReadKey();
-                return;
-            }
-
-            foreach (var asset in employee.AssignedAssets)
-            {
-                asset.EmployeeId = null;
-            }
-
-            _context.Employees.Remove(employee);
-            _context.SaveChanges();
-
-            Console.WriteLine("Employee deleted!");
-            Console.ReadKey();
-        }
-
-        // ASSIGN ASSET TO EMPLOYEE
-        public void AssignAssetToEmployee()
-        {
-            Console.Clear();
-            Console.WriteLine("=== ASSIGN ASSET TO EMPLOYEE ===");
-
-            Console.Write("Enter Employee ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int employeeId))
-            {
-                Console.WriteLine("Invalid ID.");
-                Console.ReadKey();
-                return;
-            }
-
-            var employee = _context.Employees
-                .Include(e => e.AssignedAssets)
-                .FirstOrDefault(e => e.Id == employeeId);
-
-            if (employee == null)
-            {
-                Console.WriteLine("Employee not found.");
-                Console.ReadKey();
-                return;
-            }
-
-            Console.Write("Enter Asset ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int assetId))
-            {
-                Console.WriteLine("Invalid ID.");
-                Console.ReadKey();
-                return;
-            }
-
-            var asset = _context.Assets.FirstOrDefault(a => a.Id == assetId);
-            if (asset == null)
-            {
-                Console.WriteLine("Asset not found.");
-                Console.ReadKey();
-                return;
-            }
-
-            asset.EmployeeId = employee.Id;
-            employee.AssignedAssets.Add(asset);
-
-            _context.SaveChanges();
-
-            Console.WriteLine($"Asset '{asset.Brand} {asset.ModelName}' assigned to {employee.FullName}.");
-            Console.ReadKey();
-        }
-
-        // SHOW EMPLOYEE ASSETS
-        public void ShowEmployeeAssets()
-        {
-            Console.Clear();
-            Console.WriteLine("=== EMPLOYEE ASSETS ===");
-
-            Console.Write("Enter Employee ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int id))
-            {
-                Console.WriteLine("Invalid ID.");
-                Console.ReadKey();
-                return;
-            }
-
-            var employee = _context.Employees
-                .Include(e => e.AssignedAssets)
-                .FirstOrDefault(e => e.Id == id);
-
-            if (employee == null)
-            {
-                Console.WriteLine("Employee not found.");
-                Console.ReadKey();
-                return;
-            }
-
-            Console.WriteLine($"\nEmployee: {employee.FullName}");
-            Console.WriteLine($"Department: {employee.Department}");
-            Console.WriteLine($"Email: {employee.Email}");
-            Console.WriteLine("\nAssigned Assets:");
-
-            if (!employee.AssignedAssets.Any())
-            {
-                Console.WriteLine("No assets assigned.");
-            }
-            else
-            {
-                foreach (var asset in employee.AssignedAssets)
-                {
-                    Console.WriteLine($"{asset.Id} | {asset.Brand} | {asset.ModelName} | {asset.AssetType}");
-                }
-            }
-
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.ReadKey();
-        }
-
-        // ============================
-        // EMPLOYEE REPORT
-        // ============================
-        public void EmployeeReport()
-        {
-            Console.Clear();
-            Console.WriteLine("=== EMPLOYEE REPORT ===");
-
             var employees = _context.Employees
-                .Include(e => e.AssignedAssets)
+                .Include(e => e.Assets)
                 .ToList();
 
             if (!employees.Any())
@@ -261,55 +63,188 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            int totalEmployees = employees.Count;
-            Console.WriteLine($"Total Employees: {totalEmployees}");
-            Console.WriteLine("----------------------------------------");
-
-            Console.WriteLine("Assets Per Employee:");
-
             foreach (var e in employees)
             {
-                int count = e.AssignedAssets?.Count ?? 0;
-                decimal value = e.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0;
-
-                Console.WriteLine($"{e.FullName} | Assets: {count} | Value: {value:C}");
+                Console.WriteLine($"{e.Id} | {e.FullName} | {e.Department} | Assets: {e.Assets.Count}");
             }
 
-            Console.WriteLine("----------------------------------------");
-
-            var mostAssets = employees.OrderByDescending(e => e.AssignedAssets?.Count ?? 0).First();
-            var highestValue = employees.OrderByDescending(e => e.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0).First();
-
-            Console.WriteLine($"Most Assets: {mostAssets.FullName} ({mostAssets.AssignedAssets?.Count ?? 0})");
-            Console.WriteLine($"Highest Asset Value: {highestValue.FullName} ({highestValue.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0:C})");
-
-            Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
         }
 
-        // ============================
-        // MASS INSERT: 10 EMPLOYEES
-        // ============================
-        public void Add10Employees()
+        // ============================================================
+        // SHOW EMPLOYEE DETAILS
+        // ============================================================
+        public void ShowEmployeeDetails()
         {
             Console.Clear();
-            Console.WriteLine("=== MASS INSERT: 10 EMPLOYEES ===");
+            Console.WriteLine("=== EMPLOYEE DETAILS ===");
 
-            for (int i = 1; i <= 10; i++)
+            Console.Write("Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
             {
-                var employee = new Employee
-                {
-                    FullName = $"Employee {i}",
-                    Department = "IT",
-                    Email = $"employee{i}@company.com"
-                };
-
-                _context.Employees.Add(employee);
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
             }
+
+            var emp = _context.Employees
+                .Include(e => e.Assets)
+                .ThenInclude(a => a.MaintenanceRecords)
+                .FirstOrDefault(e => e.Id == id);
+
+            if (emp == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine($"Name: {emp.FullName}");
+            Console.WriteLine($"Department: {emp.Department}");
+            Console.WriteLine($"Email: {emp.Email}");
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine($"Assigned Assets: {emp.Assets.Count}");
+
+            foreach (var a in emp.Assets)
+            {
+                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // UPDATE EMPLOYEE
+        // ============================================================
+        public void UpdateEmployee()
+        {
+            Console.Clear();
+            Console.WriteLine("=== UPDATE EMPLOYEE ===");
+
+            Console.Write("Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var emp = _context.Employees.FirstOrDefault(e => e.Id == id);
+            if (emp == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write($"Full Name ({emp.FullName}): ");
+            string? name = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(name)) emp.FullName = name;
+
+            Console.Write($"Department ({emp.Department}): ");
+            string? dept = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(dept)) emp.Department = dept;
+
+            Console.Write($"Email ({emp.Email}): ");
+            string? email = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(email)) emp.Email = email;
 
             _context.SaveChanges();
 
-            Console.WriteLine("10 employees added!");
+            Console.WriteLine("Employee updated!");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // DELETE EMPLOYEE (SAFE)
+        // ============================================================
+        public void DeleteEmployee()
+        {
+            Console.Clear();
+            Console.WriteLine("=== DELETE EMPLOYEE ===");
+
+            Console.Write("Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var emp = _context.Employees
+                .Include(e => e.Assets)
+                .FirstOrDefault(e => e.Id == id);
+
+            if (emp == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            if (emp.Assets.Any())
+            {
+                Console.WriteLine("Cannot delete employee: They still have assigned assets.");
+                Console.WriteLine("Reassign or remove assets first.");
+                Console.ReadKey();
+                return;
+            }
+
+            _context.Employees.Remove(emp);
+            _context.SaveChanges();
+
+            Console.WriteLine("Employee deleted!");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // ASSIGN ASSET TO EMPLOYEE
+        // ============================================================
+        public void AssignAssetToEmployee()
+        {
+            Console.Clear();
+            Console.WriteLine("=== ASSIGN ASSET TO EMPLOYEE ===");
+
+            Console.Write("Asset ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int assetId))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int employeeId))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var asset = _context.Assets.FirstOrDefault(a => a.Id == assetId);
+            var emp = _context.Employees.FirstOrDefault(e => e.Id == employeeId);
+
+            if (asset == null)
+            {
+                Console.WriteLine("Asset not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            if (emp == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            asset.EmployeeId = employeeId;
+            _context.SaveChanges();
+
+            Console.WriteLine("Asset assigned to employee!");
             Console.ReadKey();
         }
     }

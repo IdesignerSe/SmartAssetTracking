@@ -13,7 +13,9 @@ namespace SmartAssetTracking.App.Services
             _context = context;
         }
 
+        // ============================================================
         // ADD OFFICE
+        // ============================================================
         public void AddOffice()
         {
             Console.Clear();
@@ -25,11 +27,15 @@ namespace SmartAssetTracking.App.Services
             Console.Write("Country: ");
             string country = Console.ReadLine() ?? string.Empty;
 
+            Console.Write("Currency: ");
+            string currency = Console.ReadLine() ?? string.Empty;
+
             var office = new Office
             {
                 OfficeName = name,
                 Country = country,
-                Assets = new List<Asset>() // ensure non-null
+                Currency = currency,
+                Assets = new List<Asset>()
             };
 
             _context.Offices.Add(office);
@@ -39,7 +45,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
-        // SHOW OFFICES
+        // ============================================================
+        // SHOW ALL OFFICES
+        // ============================================================
         public void ShowOffices()
         {
             Console.Clear();
@@ -59,14 +67,79 @@ namespace SmartAssetTracking.App.Services
             foreach (var o in offices)
             {
                 int count = o.Assets?.Count ?? 0;
-                Console.WriteLine($"{o.Id} | {o.OfficeName} ({o.Country}) | Assets: {count}");
+                Console.WriteLine($"{o.Id} | {o.OfficeName} ({o.Country}) | Currency: {o.Currency} | Assets: {count}");
             }
 
             Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
         }
 
-        // UPDATE OFFICE
+        // ============================================================
+        // SHOW OFFICE DETAILS (NEW IN STEP 12)
+        // ============================================================
+        public void ShowOfficeDetails()
+        {
+            Console.Clear();
+            Console.WriteLine("=== OFFICE DETAILS ===");
+
+            Console.Write("Enter Office ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var office = _context.Offices
+                .Include(o => o.Assets)
+                .ThenInclude(a => a.MaintenanceRecords)
+                .FirstOrDefault(o => o.Id == id);
+
+            if (office == null)
+            {
+                Console.WriteLine("Office not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine($"Office: {office.OfficeName}");
+            Console.WriteLine($"Country: {office.Country}");
+            Console.WriteLine($"Currency: {office.Currency}");
+            Console.WriteLine("----------------------------------------");
+
+            var assets = office.Assets;
+
+            Console.WriteLine($"Total Assets: {assets.Count}");
+            Console.WriteLine($"Total Value (USD): {assets.Sum(a => a.PurchasePriceUSD):C}");
+            Console.WriteLine($"Total Local Value: {assets.Sum(a => a.LocalPrice):C}");
+            Console.WriteLine("----------------------------------------");
+
+            // Lifecycle summary
+            Console.WriteLine("Lifecycle Summary:");
+            Console.WriteLine($"Active: {assets.Count(a => a.LifecycleStatus == LifecycleStatus.Active)}");
+            Console.WriteLine($"In Repair: {assets.Count(a => a.LifecycleStatus == LifecycleStatus.InRepair)}");
+            Console.WriteLine($"Retired: {assets.Count(a => a.LifecycleStatus == LifecycleStatus.Retired)}");
+            Console.WriteLine("----------------------------------------");
+
+            // Maintenance cost summary
+            decimal totalMaintenance = assets.Sum(a => a.MaintenanceRecords.Sum(m => m.Cost));
+            Console.WriteLine($"Total Maintenance Cost: {totalMaintenance:C}");
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine("Assets in this Office:");
+            foreach (var a in assets)
+            {
+                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.PurchasePriceUSD:C}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // UPDATE OFFICE (NEW IN STEP 12)
+        // ============================================================
         public void UpdateOffice()
         {
             Console.Clear();
@@ -100,13 +173,21 @@ namespace SmartAssetTracking.App.Services
             if (!string.IsNullOrWhiteSpace(newCountry))
                 office.Country = newCountry;
 
+            Console.WriteLine($"Current Currency: {office.Currency}");
+            Console.Write("New Currency (leave empty to keep): ");
+            string? newCurrency = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newCurrency))
+                office.Currency = newCurrency;
+
             _context.SaveChanges();
 
             Console.WriteLine("Office updated!");
             Console.ReadKey();
         }
 
+        // ============================================================
         // ASSIGN ASSET TO OFFICE
+        // ============================================================
         public void AssignAssetToOffice()
         {
             Console.Clear();
@@ -152,7 +233,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
-        // OFFICE REPORT
+        // ============================================================
+        // OFFICE REPORT (UPDATED IN STEP 12)
+        // ============================================================
         public void OfficeReport()
         {
             Console.Clear();
@@ -168,6 +251,7 @@ namespace SmartAssetTracking.App.Services
 
             var office = _context.Offices
                 .Include(o => o.Assets)
+                .ThenInclude(a => a.MaintenanceRecords)
                 .FirstOrDefault(o => o.Id == officeId);
 
             if (office == null)
@@ -178,17 +262,25 @@ namespace SmartAssetTracking.App.Services
             }
 
             Console.WriteLine($"\nOffice: {office.OfficeName} ({office.Country})");
+            Console.WriteLine($"Currency: {office.Currency}");
+            Console.WriteLine("----------------------------------------");
 
             foreach (var a in office.Assets)
             {
-                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.PurchasePrice:C}");
+                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.PurchasePriceUSD:C}");
             }
+
+            Console.WriteLine("----------------------------------------");
+            Console.WriteLine($"Total Maintenance Cost: {office.Assets.Sum(a => a.MaintenanceRecords.Sum(m => m.Cost)):C}");
+            Console.WriteLine("----------------------------------------");
 
             Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
         }
 
-        // DELETE OFFICE
+        // ============================================================
+        // DELETE OFFICE (SAFE VERSION — STEP 12)
+        // ============================================================
         public void DeleteOffice()
         {
             Console.Clear();
@@ -213,10 +305,13 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            if (office.Assets != null)
+            // SAFETY CHECK: Cannot delete office with assets
+            if (office.Assets.Any())
             {
-                foreach (var asset in office.Assets)
-                    _context.Assets.Remove(asset);
+                Console.WriteLine("Cannot delete office: It still has assigned assets.");
+                Console.WriteLine("Move or delete assets first.");
+                Console.ReadKey();
+                return;
             }
 
             _context.Offices.Remove(office);
@@ -226,9 +321,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
-        // ============================
+        // ============================================================
         // MASS INSERT: 10 OFFICES
-        // ============================
+        // ============================================================
         public void Add10Offices()
         {
             Console.Clear();
@@ -240,6 +335,7 @@ namespace SmartAssetTracking.App.Services
                 {
                     OfficeName = $"Office {i}",
                     Country = "Sweden",
+                    Currency = "SEK",
                     Assets = new List<Asset>()
                 };
 

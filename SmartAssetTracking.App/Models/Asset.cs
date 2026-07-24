@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SmartAssetTracking.App.Models
 {
     public class Asset
@@ -36,20 +39,7 @@ namespace SmartAssetTracking.App.Models
         // Maintenance tracking (Level 5)
         public List<MaintenanceRecord> MaintenanceRecords { get; set; } = new();
 
-        // Computed property for lifecycle (3 years lifetime)
-        public string LifecycleStatus
-        {
-            get
-            {
-                var lifetime = PurchaseDate.AddYears(3);
-                var remaining = lifetime - DateTime.Now;
-
-                if (remaining.TotalDays < 90)
-                    return "YELLOW";   // < 3 months
-                if (remaining.TotalDays < 180)
-                    return "RED";      // < 6 months
-                return "NORMAL";
-            }
-        }
+        // Lifecycle status (UPDATED TO ENUM)
+        public LifecycleStatus LifecycleStatus { get; set; } = LifecycleStatus.Active;
     }
 }

@@ -9,6 +9,6 @@ namespace SmartAssetTracking.App.Models
         public string Email { get; set; } = string.Empty;
 
         // Relation: Employee → Assets
-        public List<Asset> AssignedAssets { get; set; } = new();
+        public List<Asset> Assets { get; set; } = new();
     }
 }
