@@ -41,7 +41,7 @@ namespace SmartAssetTracking.App.Services
             asset.SerialNumber = serial;
             asset.WarrantyExpiration = purchaseDate.AddYears(3);
 
-            // --- OFFICE SELECTION (fixar foreign key error) ---
+            // --- OFFICE SELECTION ---
             Console.WriteLine("\nAvailable Offices:");
             foreach (var o in db.Offices)
                 Console.WriteLine($"{o.Id}. {o.OfficeName} ({o.Country})");
@@ -69,11 +69,13 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("Asset added successfully!");
         }
 
+        // ⭐ UPDATED VERSION — SHOW OFFICE INFO
         public void ShowAssets()
         {
             using var db = new AssetDbContext();
 
             var assets = db.Assets
+                .Include(a => a.Office)                 // Load Office relation
                 .OrderBy(a => a.AssetType)
                 .ThenByDescending(a => a.PurchaseDate)
                 .ToList();
@@ -99,7 +101,12 @@ namespace SmartAssetTracking.App.Services
                 else
                     Console.ResetColor();
 
-                Console.WriteLine($"{a.Id} | {a.Brand} | {a.ModelName} | {a.PurchaseDate:yyyy-MM-dd} | {status}");
+                Console.WriteLine(
+                    $"{a.Id} | {a.Brand} {a.ModelName} | " +
+                    $"{a.Office.OfficeName} ({a.Office.Country}) | " +
+                    $"{a.LocalPrice} {a.Office.Currency} | " +
+                    $"{a.PurchaseDate:yyyy-MM-dd} | {status}"
+                );
 
                 Console.ResetColor();
             }
