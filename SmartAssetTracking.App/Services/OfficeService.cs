@@ -29,7 +29,7 @@ namespace SmartAssetTracking.App.Services
             {
                 OfficeName = name,
                 Country = country,
-                Assets = new List<Asset>() // ⭐ ensure non-null
+                Assets = new List<Asset>() // ensure non-null
             };
 
             _context.Offices.Add(office);
@@ -63,6 +63,46 @@ namespace SmartAssetTracking.App.Services
             }
 
             Console.WriteLine("\nPress ENTER to continue...");
+            Console.ReadKey();
+        }
+
+        // UPDATE OFFICE
+        public void UpdateOffice()
+        {
+            Console.Clear();
+            Console.WriteLine("=== UPDATE OFFICE ===");
+
+            Console.Write("Enter Office ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var office = _context.Offices.FirstOrDefault(o => o.Id == id);
+            if (office == null)
+            {
+                Console.WriteLine("Office not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"\nCurrent Name: {office.OfficeName}");
+            Console.Write("New Name (leave empty to keep): ");
+            string? newName = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newName))
+                office.OfficeName = newName;
+
+            Console.WriteLine($"Current Country: {office.Country}");
+            Console.Write("New Country (leave empty to keep): ");
+            string? newCountry = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(newCountry))
+                office.Country = newCountry;
+
+            _context.SaveChanges();
+
+            Console.WriteLine("Office updated!");
             Console.ReadKey();
         }
 
@@ -173,7 +213,6 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            // ⭐ Remove assets safely
             if (office.Assets != null)
             {
                 foreach (var asset in office.Assets)
