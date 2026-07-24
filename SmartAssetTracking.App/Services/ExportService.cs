@@ -12,6 +12,10 @@ namespace SmartAssetTracking.App.Services
         public ExportService(AssetDbContext context)
         {
             _context = context;
+
+            // ⭐ Ensure Reports folder exists
+            if (!Directory.Exists("Reports"))
+                Directory.CreateDirectory("Reports");
         }
 
         public void ExportMenu()
@@ -67,7 +71,7 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            string path = "assets_export.csv";
+            string path = "Reports/assets_export.csv";
 
             using var writer = new StreamWriter(path);
 
@@ -109,7 +113,7 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            string path = "assets_export.json";
+            string path = "Reports/assets_export.json";
 
             var json = System.Text.Json.JsonSerializer.Serialize(
                 assets,
@@ -141,7 +145,7 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            string path = "assets_export.txt";
+            string path = "Reports/assets_export.txt";
 
             using var writer = new StreamWriter(path);
 
