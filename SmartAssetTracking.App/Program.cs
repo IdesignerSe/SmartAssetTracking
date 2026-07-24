@@ -5,48 +5,45 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SmartAssetTracking.App
 {
-    class Program
+    public class Program
     {
         static void Main()
         {
-            // EF Core database setup
+            // ✔ Rätt databasplats
             var options = new DbContextOptionsBuilder<AssetDbContext>()
-                .UseSqlite("Data Source=assets.db")
+                .UseSqlite("Data Source=Data/assets.db")
                 .Options;
 
             using var context = new AssetDbContext(options);
             context.Database.EnsureCreated();
 
-            // Login system
-            var loginService = new LoginService();
-            User loggedInUser = loginService.Login();
+            var loginService = new LoginService(context);
 
-            MainMenu(loggedInUser, context);
+            Console.Clear();
+            Console.WriteLine("=== LOGIN ===");
+            Console.Write("Username: ");
+            string username = Console.ReadLine() ?? "";
+
+            Console.Write("Password: ");
+            string password = Console.ReadLine() ?? "";
+
+            var user = loginService.Authenticate(username, password);
+
+            if (user == null)
+            {
+                Console.WriteLine("Invalid login.");
+                return;
+            }
+
+            MainMenu(user, context);
         }
 
         static void MainMenu(User user, AssetDbContext context)
         {
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine("=== MAIN MENU ===");
-                Console.WriteLine($"Logged in as: {user.Username} ({user.Role})\n");
-
-                switch (user.Role)
-                {
-                    case UserRole.Admin:
-                        AdminMenu(context);
-                        break;
-
-                    case UserRole.Manager:
-                        ManagerMenu(context);
-                        break;
-
-                    case UserRole.Employee:
-                        EmployeeMenu(context, user);
-                        break;
-                }
-            }
+            if (user.Role == UserRole.Admin)
+                AdminMenu(context);
+            else
+                UserMenu(context);
         }
 
         // ============================
@@ -58,6 +55,7 @@ namespace SmartAssetTracking.App
             var employeeService = new EmployeeService(context);
             var maintenanceService = new MaintenanceService(context);
             var dashboardService = new DashboardService(context);
+            var officeService = new OfficeService(context); // ⭐ OfficeService för admin
 
             while (true)
             {
@@ -67,82 +65,119 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("2. Employee Management");
                 Console.WriteLine("3. Maintenance");
                 Console.WriteLine("4. Dashboard");
-                Console.WriteLine("5. Exit");
-
+                Console.WriteLine("5. Office Management"); // ⭐ Ny meny
+                Console.WriteLine("6. Exit");
                 Console.Write("Choose option: ");
-                string choice = Console.ReadLine() ?? "";
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                    continue;
 
                 switch (choice)
                 {
-                    case "1": AssetMenu(assetService); break;
-                    case "2": EmployeeManagementMenu(employeeService); break;
-                    case "3": MaintenanceMenu(maintenanceService); break;
-                    case "4": dashboardService.ShowDashboard(); break;
-                    case "5": Environment.Exit(0); break;
+                    case 1:
+                        AssetMenu(assetService);
+                        break;
+                    case 2:
+                        EmployeeMenu(employeeService);
+                        break;
+                    case 3:
+                        MaintenanceMenu(maintenanceService);
+                        break;
+                    case 4:
+                        dashboardService.ShowDashboard();
+                        break;
+                    case 5:
+                        OfficeMenu(officeService); // ⭐ Ny meny
+                        break;
+                    case 6:
+                        return;
                 }
             }
         }
 
         // ============================
-        // MANAGER MENU
+        // USER MENU
         // ============================
-        static void ManagerMenu(AssetDbContext context)
+        static void UserMenu(AssetDbContext context)
         {
             var assetService = new AssetService(context);
-            var employeeService = new EmployeeService(context);
-            var maintenanceService = new MaintenanceService(context);
-            var dashboardService = new DashboardService(context);
+            var officeService = new OfficeService(context);
+            var searchService = new SearchService(context);
+            var exportService = new ExportService(context);
 
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("=== MANAGER MENU ===");
+                Console.WriteLine("=== USER MENU ===");
                 Console.WriteLine("1. Asset Management");
-                Console.WriteLine("2. Employee Management");
-                Console.WriteLine("3. Maintenance");
-                Console.WriteLine("4. Dashboard");
+                Console.WriteLine("2. Office Management");
+                Console.WriteLine("3. Search");
+                Console.WriteLine("4. Export");
                 Console.WriteLine("5. Exit");
-
                 Console.Write("Choose option: ");
-                string choice = Console.ReadLine() ?? "";
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                    continue;
 
                 switch (choice)
                 {
-                    case "1": AssetMenu(assetService); break;
-                    case "2": EmployeeManagementMenu(employeeService); break;
-                    case "3": MaintenanceMenu(maintenanceService); break;
-                    case "4": dashboardService.ShowDashboard(); break;
-                    case "5": Environment.Exit(0); break;
+                    case 1:
+                        AssetMenu(assetService);
+                        break;
+                    case 2:
+                        OfficeMenu(officeService);
+                        break;
+                    case 3:
+                        searchService.SearchAssets();
+                        break;
+                    case 4:
+                        exportService.ExportMenu();
+                        break;
+                    case 5:
+                        return;
                 }
             }
         }
 
         // ============================
-        // EMPLOYEE MENU
+        // OFFICE MENU
         // ============================
-        static void EmployeeMenu(AssetDbContext context, User user)
+        static void OfficeMenu(OfficeService officeService)
         {
-            var employeeService = new EmployeeService(context);
-
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("=== EMPLOYEE MENU ===");
-                Console.WriteLine("1. View My Assigned Assets");
-                Console.WriteLine("2. Exit");
-
+                Console.WriteLine("=== OFFICE MANAGEMENT ===");
+                Console.WriteLine("1. Add Office");
+                Console.WriteLine("2. Show Offices");
+                Console.WriteLine("3. Assign Asset to Office");
+                Console.WriteLine("4. Office Report");
+                Console.WriteLine("5. Delete Office");
+                Console.WriteLine("6. Back");
                 Console.Write("Choose option: ");
-                string choice = Console.ReadLine() ?? "";
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                    continue;
 
                 switch (choice)
                 {
-                    case "1":
-                        employeeService.ShowEmployeeAssets();
+                    case 1:
+                        officeService.AddOffice();
                         break;
-
-                    case "2":
-                        Environment.Exit(0);
+                    case 2:
+                        officeService.ShowOffices();
                         break;
+                    case 3:
+                        officeService.AssignAssetToOffice();
+                        break;
+                    case 4:
+                        officeService.OfficeReport();
+                        break;
+                    case 5:
+                        officeService.DeleteOffice();
+                        break;
+                    case 6:
+                        return;
                 }
             }
         }
@@ -155,31 +190,37 @@ namespace SmartAssetTracking.App
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("=== ASSET MENU ===");
+                Console.WriteLine("=== ASSET MANAGEMENT ===");
                 Console.WriteLine("1. Add Asset");
                 Console.WriteLine("2. Show Assets");
-                Console.WriteLine("3. Update Asset");
-                Console.WriteLine("4. Delete Asset");
-                Console.WriteLine("5. Back");
-
+                Console.WriteLine("3. Delete Asset");
+                Console.WriteLine("4. Back");
                 Console.Write("Choose option: ");
-                string choice = Console.ReadLine() ?? "";
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                    continue;
 
                 switch (choice)
                 {
-                    case "1": assetService.AddAsset(); break;
-                    case "2": assetService.ShowAssets(); break;
-                    case "3": assetService.UpdateAsset(); break;
-                    case "4": assetService.DeleteAsset(); break;
-                    case "5": return;
+                    case 1:
+                        assetService.AddAsset();
+                        break;
+                    case 2:
+                        assetService.ShowAssets();
+                        break;
+                    case 3:
+                        assetService.DeleteAsset();
+                        break;
+                    case 4:
+                        return;
                 }
             }
         }
 
         // ============================
-        // EMPLOYEE MANAGEMENT MENU
+        // EMPLOYEE MENU
         // ============================
-        static void EmployeeManagementMenu(EmployeeService employeeService)
+        static void EmployeeMenu(EmployeeService employeeService)
         {
             while (true)
             {
@@ -187,24 +228,26 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("=== EMPLOYEE MANAGEMENT ===");
                 Console.WriteLine("1. Add Employee");
                 Console.WriteLine("2. Show Employees");
-                Console.WriteLine("3. Update Employee");
-                Console.WriteLine("4. Delete Employee");
-                Console.WriteLine("5. Assign Asset to Employee");
-                Console.WriteLine("6. Show Employee Assets");
-                Console.WriteLine("7. Back");
-
+                Console.WriteLine("3. Assign Asset");
+                Console.WriteLine("4. Back");
                 Console.Write("Choose option: ");
-                string choice = Console.ReadLine() ?? "";
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                    continue;
 
                 switch (choice)
                 {
-                    case "1": employeeService.AddEmployee(); break;
-                    case "2": employeeService.ShowEmployees(); break;
-                    case "3": employeeService.UpdateEmployee(); break;
-                    case "4": employeeService.DeleteEmployee(); break;
-                    case "5": employeeService.AssignAssetToEmployee(); break;
-                    case "6": employeeService.ShowEmployeeAssets(); break;
-                    case "7": return;
+                    case 1:
+                        employeeService.AddEmployee();
+                        break;
+                    case 2:
+                        employeeService.ShowEmployees();
+                        break;
+                    case 3:
+                        employeeService.AssignAssetToEmployee();
+                        break;
+                    case 4:
+                        return;
                 }
             }
         }
@@ -217,21 +260,25 @@ namespace SmartAssetTracking.App
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("=== MAINTENANCE MENU ===");
+                Console.WriteLine("=== MAINTENANCE ===");
                 Console.WriteLine("1. Add Maintenance Record");
-                Console.WriteLine("2. Show Maintenance History");
-                Console.WriteLine("3. Show Upcoming Maintenance");
-                Console.WriteLine("4. Back");
-
+                Console.WriteLine("2. Show Maintenance Records");
+                Console.WriteLine("3. Back");
                 Console.Write("Choose option: ");
-                string choice = Console.ReadLine() ?? "";
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                    continue;
 
                 switch (choice)
                 {
-                    case "1": maintenanceService.AddMaintenance(); break;
-                    case "2": maintenanceService.ShowMaintenance(); break;
-                    case "3": maintenanceService.ShowUpcomingMaintenance(); break;
-                    case "4": return;
+                    case 1:
+                        maintenanceService.AddMaintenanceRecord();
+                        break;
+                    case 2:
+                        maintenanceService.ShowMaintenanceRecords();
+                        break;
+                    case 3:
+                        return;
                 }
             }
         }

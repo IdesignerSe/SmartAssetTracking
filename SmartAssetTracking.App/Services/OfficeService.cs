@@ -157,7 +157,6 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            // Remove assets belonging to office
             foreach (var asset in office.Assets)
                 _context.Assets.Remove(asset);
 

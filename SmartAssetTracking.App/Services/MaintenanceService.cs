@@ -14,12 +14,12 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ADD MAINTENANCE RECORD
-        public void AddMaintenance()
+        public void AddMaintenanceRecord()
         {
             Console.Clear();
             Console.WriteLine("=== ADD MAINTENANCE RECORD ===");
 
-            Console.Write("Enter Asset ID: ");
+            Console.Write("Asset ID: ");
             if (!int.TryParse(Console.ReadLine(), out int assetId))
             {
                 Console.WriteLine("Invalid ID.");
@@ -27,10 +27,7 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            var asset = _context.Assets
-                .Include(a => a.MaintenanceRecords)
-                .FirstOrDefault(a => a.Id == assetId);
-
+            var asset = _context.Assets.FirstOrDefault(a => a.Id == assetId);
             if (asset == null)
             {
                 Console.WriteLine("Asset not found.");
@@ -38,104 +35,55 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            Console.Write("Last Maintenance Date (yyyy-mm-dd): ");
-            DateTime lastDate = DateTime.TryParse(Console.ReadLine(), out var ld)
-                ? ld
-                : DateTime.Now;
+            Console.Write("Description: ");
+            string description = Console.ReadLine() ?? "";
 
-            Console.Write("Next Maintenance Date (yyyy-mm-dd): ");
-            DateTime nextDate = DateTime.TryParse(Console.ReadLine(), out var nd)
-                ? nd
-                : DateTime.Now.AddMonths(6);
-
-            Console.Write("Notes: ");
-            string notes = Console.ReadLine() ?? string.Empty;
+            Console.Write("Cost: ");
+            if (!decimal.TryParse(Console.ReadLine(), out decimal cost))
+            {
+                Console.WriteLine("Invalid cost.");
+                Console.ReadKey();
+                return;
+            }
 
             var record = new MaintenanceRecord
             {
-                LastMaintenanceDate = lastDate,
-                NextMaintenanceDate = nextDate,
-                Notes = notes,
-                AssetId = asset.Id
+                AssetId = assetId,
+                Description = description,
+                Cost = cost,
+                Date = DateTime.Now
             };
 
-            asset.MaintenanceRecords.Add(record);
+            _context.MaintenanceRecords.Add(record);
             _context.SaveChanges();
 
             Console.WriteLine("Maintenance record added!");
             Console.ReadKey();
         }
 
-        // SHOW MAINTENANCE HISTORY
-        public void ShowMaintenance()
+        // SHOW MAINTENANCE RECORDS
+        public void ShowMaintenanceRecords()
         {
             Console.Clear();
-            Console.WriteLine("=== MAINTENANCE HISTORY ===");
+            Console.WriteLine("=== MAINTENANCE RECORDS ===");
 
-            Console.Write("Enter Asset ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int assetId))
-            {
-                Console.WriteLine("Invalid ID.");
-                Console.ReadKey();
-                return;
-            }
-
-            var asset = _context.Assets
-                .Include(a => a.MaintenanceRecords)
-                .FirstOrDefault(a => a.Id == assetId);
-
-            if (asset == null)
-            {
-                Console.WriteLine("Asset not found.");
-                Console.ReadKey();
-                return;
-            }
-
-            Console.WriteLine($"\nAsset: {asset.Brand} {asset.ModelName}");
-            Console.WriteLine("Maintenance Records:");
-
-            if (asset.MaintenanceRecords.Count == 0)
-            {
-                Console.WriteLine("No maintenance records found.");
-            }
-            else
-            {
-                foreach (var m in asset.MaintenanceRecords)
-                {
-                    Console.WriteLine(
-                        $"{m.Id} | Last: {m.LastMaintenanceDate:yyyy-MM-dd} | Next: {m.NextMaintenanceDate:yyyy-MM-dd} | Notes: {m.Notes}"
-                    );
-                }
-            }
-
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.ReadKey();
-        }
-
-        // UPCOMING MAINTENANCE (Dashboard)
-        public void ShowUpcomingMaintenance()
-        {
-            Console.Clear();
-            Console.WriteLine("=== UPCOMING MAINTENANCE ===");
-
-            var upcoming = _context.MaintenanceRecords
-                .Include(m => m.Asset)
-                .Where(m => m.NextMaintenanceDate <= DateTime.Now.AddDays(30))
-                .OrderBy(m => m.NextMaintenanceDate)
+            var records = _context.MaintenanceRecords
+                .Include(r => r.Asset)
                 .ToList();
 
-            if (upcoming.Count == 0)
+            if (!records.Any())
             {
-                Console.WriteLine("No upcoming maintenance within 30 days.");
+                Console.WriteLine("No maintenance records found.");
+                Console.ReadKey();
+                return;
             }
-            else
+
+            foreach (var r in records)
             {
-                foreach (var m in upcoming)
-                {
-                    Console.WriteLine(
-                        $"{m.Asset.Brand} {m.Asset.ModelName} → Next: {m.NextMaintenanceDate:yyyy-MM-dd} | Notes: {m.Notes}"
-                    );
-                }
+                Console.WriteLine(
+                    $"{r.Id} | Asset: {r.Asset.Brand} {r.Asset.ModelName} | " +
+                    $"{r.Description} | Cost: {r.Cost:C} | Date: {r.Date:yyyy-MM-dd}"
+                );
             }
 
             Console.WriteLine("\nPress ENTER to continue...");
