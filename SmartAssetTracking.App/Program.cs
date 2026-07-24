@@ -8,7 +8,8 @@ namespace SmartAssetTracking.App
         {
             var assetService = new AssetService();
             var officeService = new OfficeService();
-            var searchService = new SearchService();   // ⭐ NEW
+            var searchService = new SearchService();
+            var exportService = new ExportService();   // ⭐ NEW
 
             while (true)
             {
@@ -23,10 +24,11 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("7. Assign Asset to Office");
                 Console.WriteLine("8. Office Report");
                 Console.WriteLine("9. Delete Office");
-                Console.WriteLine("10. Search Assets");   // ⭐ MOVED
-                Console.WriteLine("11. Filter Assets");   // ⭐ MOVED
-                Console.WriteLine("12. Sort Assets");     // ⭐ MOVED
-                Console.WriteLine("13. Exit");            // ⭐ ALWAYS LAST
+                Console.WriteLine("10. Search Assets");
+                Console.WriteLine("11. Filter Assets");
+                Console.WriteLine("12. Sort Assets");
+                Console.WriteLine("13. Export Assets");   // ⭐ NEW
+                Console.WriteLine("14. Exit");            // ⭐ ALWAYS LAST
                 Console.Write("Choose option: ");
 
                 string input = Console.ReadLine()!;
@@ -89,6 +91,10 @@ namespace SmartAssetTracking.App
                         break;
 
                     case 13:
+                        exportService.ExportMenu();
+                        break;
+
+                    case 14:
                         return;
 
                     default:

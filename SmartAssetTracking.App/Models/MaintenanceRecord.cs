@@ -4,13 +4,12 @@ namespace SmartAssetTracking.App.Models
     {
         public int Id { get; set; }
 
+        public DateTime Date { get; set; }
+        public string? Description { get; set; }
+        public decimal Cost { get; set; }
+
+        // Relation: Maintenance → Asset
         public int AssetId { get; set; }
-
-        public required Asset Asset { get; set; }
-
-        public DateTime LastMaintenance { get; set; }
-        public DateTime NextMaintenance { get; set; }
-
-        public required string Notes { get; set; }
+        public Asset? Asset { get; set; }
     }
 }
