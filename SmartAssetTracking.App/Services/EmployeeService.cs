@@ -188,10 +188,9 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            // ⭐ FIX: Update FK relation
             asset.EmployeeId = employee.Id;
-
             employee.AssignedAssets.Add(asset);
+
             _context.SaveChanges();
 
             Console.WriteLine($"Asset '{asset.Brand} {asset.ModelName}' assigned to {employee.FullName}.");
@@ -239,6 +238,51 @@ namespace SmartAssetTracking.App.Services
                     Console.WriteLine($"{asset.Id} | {asset.Brand} | {asset.ModelName} | {asset.AssetType}");
                 }
             }
+
+            Console.WriteLine("\nPress ENTER to continue...");
+            Console.ReadKey();
+        }
+
+        // ============================
+        // EMPLOYEE REPORT
+        // ============================
+        public void EmployeeReport()
+        {
+            Console.Clear();
+            Console.WriteLine("=== EMPLOYEE REPORT ===");
+
+            var employees = _context.Employees
+                .Include(e => e.AssignedAssets)
+                .ToList();
+
+            if (!employees.Any())
+            {
+                Console.WriteLine("No employees found.");
+                Console.ReadKey();
+                return;
+            }
+
+            int totalEmployees = employees.Count;
+            Console.WriteLine($"Total Employees: {totalEmployees}");
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine("Assets Per Employee:");
+
+            foreach (var e in employees)
+            {
+                int count = e.AssignedAssets?.Count ?? 0;
+                decimal value = e.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0;
+
+                Console.WriteLine($"{e.FullName} | Assets: {count} | Value: {value:C}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+
+            var mostAssets = employees.OrderByDescending(e => e.AssignedAssets?.Count ?? 0).First();
+            var highestValue = employees.OrderByDescending(e => e.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0).First();
+
+            Console.WriteLine($"Most Assets: {mostAssets.FullName} ({mostAssets.AssignedAssets?.Count ?? 0})");
+            Console.WriteLine($"Highest Asset Value: {highestValue.FullName} ({highestValue.AssignedAssets?.Sum(a => a.PurchasePrice) ?? 0:C})");
 
             Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();

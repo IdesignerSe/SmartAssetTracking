@@ -204,5 +204,74 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("Maintenance record deleted!");
             Console.ReadKey();
         }
+
+        // ============================
+        // MAINTENANCE COST REPORT
+        // ============================
+        public void MaintenanceCostReport()
+        {
+            Console.Clear();
+            Console.WriteLine("=== MAINTENANCE COST REPORT ===");
+
+            var records = _context.MaintenanceRecords
+                .Include(r => r.Asset)
+                .Include(r => r.Asset.Office)
+                .ToList();
+
+            if (!records.Any())
+            {
+                Console.WriteLine("No maintenance records found.");
+                Console.ReadKey();
+                return;
+            }
+
+            decimal totalCost = records.Sum(r => r.Cost);
+            Console.WriteLine($"Total Maintenance Cost: {totalCost:C}");
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine("Cost Per Asset:");
+            var costPerAsset = records
+                .GroupBy(r => r.Asset)
+                .Select(g => new
+                {
+                    Asset = $"{g.Key.Brand} {g.Key.ModelName}",
+                    Cost = g.Sum(r => r.Cost)
+                });
+
+            foreach (var a in costPerAsset)
+            {
+                Console.WriteLine($"{a.Asset} | Total Cost: {a.Cost:C}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine("Cost Per Office:");
+            var costPerOffice = records
+                .GroupBy(r => r.Asset.Office?.OfficeName ?? "None")
+                .Select(g => new
+                {
+                    Office = g.Key,
+                    Cost = g.Sum(r => r.Cost)
+                });
+
+            foreach (var o in costPerOffice)
+            {
+                Console.WriteLine($"{o.Office} | Total Cost: {o.Cost:C}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+
+            var mostExpensiveAsset = costPerAsset.OrderByDescending(a => a.Cost).First();
+            Console.WriteLine($"Most Expensive Asset: {mostExpensiveAsset.Asset} ({mostExpensiveAsset.Cost:C})");
+
+            var latest = records.OrderByDescending(r => r.Date).First();
+            var oldest = records.OrderBy(r => r.Date).First();
+
+            Console.WriteLine($"Latest Maintenance: {latest.Asset.Brand} {latest.Asset.ModelName} ({latest.Date:yyyy-MM-dd})");
+            Console.WriteLine($"Oldest Maintenance: {oldest.Asset.Brand} {oldest.Asset.ModelName} ({oldest.Date:yyyy-MM-dd})");
+
+            Console.WriteLine("\nPress ENTER to continue...");
+            Console.ReadKey();
+        }
     }
 }

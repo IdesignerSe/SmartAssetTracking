@@ -46,7 +46,6 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            // ⭐ Check if office exists
             var office = _context.Offices.FirstOrDefault(o => o.Id == officeId);
             if (office == null)
             {
@@ -172,6 +171,58 @@ namespace SmartAssetTracking.App.Services
             _context.SaveChanges();
 
             Console.WriteLine("Asset deleted!");
+            Console.ReadKey();
+        }
+
+        // ============================
+        // ASSET REPORT
+        // ============================
+        public void AssetReport()
+        {
+            Console.Clear();
+            Console.WriteLine("=== ASSET REPORT ===");
+
+            var assets = _context.Assets
+                .Include(a => a.Office)
+                .Include(a => a.Employee)
+                .ToList();
+
+            if (!assets.Any())
+            {
+                Console.WriteLine("No assets found.");
+                Console.ReadKey();
+                return;
+            }
+
+            int totalAssets = assets.Count;
+            decimal totalValue = assets.Sum(a => a.PurchasePrice);
+
+            var oldest = assets.OrderBy(a => a.PurchaseDate).First();
+            var newest = assets.OrderByDescending(a => a.PurchaseDate).First();
+
+            Console.WriteLine($"Total Assets: {totalAssets}");
+            Console.WriteLine($"Total Value: {totalValue:C}");
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine("Assets Per Office:");
+            var groupedByOffice = assets
+                .GroupBy(a => a.Office?.OfficeName ?? "None")
+                .Select(g => new { Office = g.Key, Count = g.Count(), Value = g.Sum(a => a.PurchasePrice) });
+
+            foreach (var office in groupedByOffice)
+            {
+                Console.WriteLine($"Office: {office.Office} | Count: {office.Count} | Value: {office.Value:C}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+
+            Console.WriteLine("Oldest Asset:");
+            Console.WriteLine($"{oldest.Id} | {oldest.Brand} {oldest.ModelName} | {oldest.PurchaseDate:yyyy-MM-dd}");
+
+            Console.WriteLine("Newest Asset:");
+            Console.WriteLine($"{newest.Id} | {newest.Brand} {newest.ModelName} | {newest.PurchaseDate:yyyy-MM-dd}");
+
+            Console.WriteLine("\nPress ENTER to continue...");
             Console.ReadKey();
         }
     }
