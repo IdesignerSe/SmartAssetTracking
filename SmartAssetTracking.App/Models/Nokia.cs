@@ -4,6 +4,7 @@ namespace SmartAssetTracking.App.Models
     {
         public Nokia()
         {
+            AssetType = "Nokia";
             Brand = "Nokia";
         }
     }

@@ -4,6 +4,7 @@ namespace SmartAssetTracking.App.Models
     {
         public iPhone()
         {
+            AssetType = "iPhone";
             Brand = "Apple";
         }
     }

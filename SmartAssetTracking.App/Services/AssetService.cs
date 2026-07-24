@@ -13,65 +13,108 @@ namespace SmartAssetTracking.App.Services
             _context = context;
         }
 
-        // CREATE
+        // ============================================================
+        // CREATE (UPDATED FOR INHERITANCE)
+        // ============================================================
         public void AddAsset()
         {
             Console.Clear();
             Console.WriteLine("=== ADD ASSET ===");
+            Console.WriteLine("Choose asset type:");
+            Console.WriteLine("1. Laptop");
+            Console.WriteLine("2. Desktop");
+            Console.WriteLine("3. iPhone");
+            Console.WriteLine("4. Samsung");
+            Console.WriteLine("5. Nokia");
+            Console.WriteLine("6. Tablet");
+            Console.Write("Your choice: ");
 
-            Console.Write("Asset Type: ");
-            string type = Console.ReadLine() ?? string.Empty;
+            var choice = Console.ReadLine();
 
-            Console.Write("Brand: ");
-            string brand = Console.ReadLine() ?? string.Empty;
+            Asset asset = choice switch
+            {
+                "1" => new Laptop(),
+                "2" => new Desktop(),
+                "3" => new iPhone(),
+                "4" => new Samsung(),
+                "5" => new Nokia(),
+                "6" => new Tablet(),
+                _ => throw new Exception("Invalid choice")
+            };
 
+            // Basic info
             Console.Write("Model Name: ");
-            string model = Console.ReadLine() ?? string.Empty;
+            asset.ModelName = Console.ReadLine() ?? "";
+
+            Console.Write("Serial Number: ");
+            asset.SerialNumber = Console.ReadLine() ?? "";
 
             Console.Write("Purchase Date (yyyy-mm-dd): ");
-            DateTime purchaseDate = DateTime.TryParse(Console.ReadLine(), out var pd)
-                ? pd
-                : DateTime.Now;
+            asset.PurchaseDate = DateTime.Parse(Console.ReadLine() ?? "");
 
-            Console.Write("Purchase Price: ");
-            decimal price = decimal.TryParse(Console.ReadLine(), out var pr)
-                ? pr
-                : 0;
+            Console.Write("Purchase Price (USD): ");
+            asset.PurchasePrice = decimal.Parse(Console.ReadLine() ?? "");
 
+            // PDF Level 3 fields
+            asset.PurchasePriceUSD = asset.PurchasePrice;
+
+            Console.Write("Local Price (converted): ");
+            asset.LocalPrice = decimal.Parse(Console.ReadLine() ?? "");
+
+            Console.Write("Warranty Expiration (yyyy-mm-dd): ");
+            asset.WarrantyExpiration = DateTime.Parse(Console.ReadLine() ?? "");
+
+            // Office relation
             Console.Write("Office ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int officeId))
+            asset.OfficeId = int.Parse(Console.ReadLine() ?? "");
+
+            // Employee assignment (optional)
+            Console.Write("Assign to employee? (y/n): ");
+            if (Console.ReadLine()?.ToLower() == "y")
             {
-                Console.WriteLine("Invalid Office ID.");
-                Console.ReadKey();
-                return;
+                Console.Write("Employee ID: ");
+                asset.EmployeeId = int.Parse(Console.ReadLine() ?? "");
             }
 
-            var office = _context.Offices.FirstOrDefault(o => o.Id == officeId);
-            if (office == null)
+            // Extra fields for ComputerAsset
+            if (asset is ComputerAsset comp)
             {
-                Console.WriteLine("Office not found. Cannot add asset.");
-                Console.ReadKey();
-                return;
+                Console.Write("CPU: ");
+                comp.CPU = Console.ReadLine();
+
+                Console.Write("RAM: ");
+                comp.RAM = Console.ReadLine();
+
+                Console.Write("Storage: ");
+                comp.Storage = Console.ReadLine();
+
+                Console.Write("GPU: ");
+                comp.GPU = Console.ReadLine();
             }
 
-            var asset = new Asset
+            // Extra fields for MobileAsset
+            if (asset is MobileAsset mob)
             {
-                AssetType = type,
-                Brand = brand,
-                ModelName = model,
-                PurchaseDate = purchaseDate,
-                PurchasePrice = price,
-                OfficeId = officeId
-            };
+                Console.Write("Operating System: ");
+                mob.OperatingSystem = Console.ReadLine();
+
+                Console.Write("Screen Size: ");
+                mob.ScreenSize = Console.ReadLine();
+
+                Console.Write("Battery Capacity: ");
+                mob.BatteryCapacity = Console.ReadLine();
+            }
 
             _context.Assets.Add(asset);
             _context.SaveChanges();
 
-            Console.WriteLine("Asset added!");
+            Console.WriteLine("Asset added successfully!");
             Console.ReadKey();
         }
 
-        // READ
+        // ============================================================
+        // READ (UPDATED FOR INHERITANCE)
+        // ============================================================
         public void ShowAssets()
         {
             Console.Clear();
@@ -91,17 +134,47 @@ namespace SmartAssetTracking.App.Services
 
             foreach (var a in assets)
             {
-                Console.WriteLine(
-                    $"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.PurchasePrice:C} | " +
-                    $"Office: {a.Office.OfficeName} | Employee: {a.Employee?.FullName ?? "None"}"
-                );
+                Console.WriteLine("--------------------------------------------------");
+                Console.WriteLine($"ID: {a.Id}");
+                Console.WriteLine($"Type: {a.AssetType}");
+                Console.WriteLine($"Brand: {a.Brand}");
+                Console.WriteLine($"Model: {a.ModelName}");
+                Console.WriteLine($"Serial Number: {a.SerialNumber}");
+                Console.WriteLine($"Purchase Date: {a.PurchaseDate:yyyy-MM-dd}");
+                Console.WriteLine($"Purchase Price (USD): {a.PurchasePriceUSD:C}");
+                Console.WriteLine($"Local Price: {a.LocalPrice:C}");
+                Console.WriteLine($"Warranty Expiration: {a.WarrantyExpiration:yyyy-MM-dd}");
+                Console.WriteLine($"Lifecycle Status: {a.LifecycleStatus}");
+                Console.WriteLine($"Office: {a.Office?.OfficeName ?? "None"}");
+                Console.WriteLine($"Employee: {a.Employee?.FullName ?? "None"}");
+
+                // ComputerAsset fields
+                if (a is ComputerAsset comp)
+                {
+                    Console.WriteLine("---- Computer Specs ----");
+                    Console.WriteLine($"CPU: {comp.CPU}");
+                    Console.WriteLine($"RAM: {comp.RAM}");
+                    Console.WriteLine($"Storage: {comp.Storage}");
+                    Console.WriteLine($"GPU: {comp.GPU}");
+                }
+
+                // MobileAsset fields
+                if (a is MobileAsset mob)
+                {
+                    Console.WriteLine("---- Mobile Specs ----");
+                    Console.WriteLine($"Operating System: {mob.OperatingSystem}");
+                    Console.WriteLine($"Screen Size: {mob.ScreenSize}");
+                    Console.WriteLine($"Battery Capacity: {mob.BatteryCapacity}");
+                }
             }
 
-            Console.WriteLine("\nPress ENTER to continue...");
+            Console.WriteLine("--------------------------------------------------");
             Console.ReadKey();
         }
 
-        // UPDATE
+        // ============================================================
+        // UPDATE (UPDATED FOR INHERITANCE)
+        // ============================================================
         public void UpdateAsset()
         {
             Console.Clear();
@@ -123,21 +196,63 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            Console.Write($"Asset Type ({asset.AssetType}): ");
-            string? type = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(type)) asset.AssetType = type;
-
-            Console.Write($"Brand ({asset.Brand}): ");
-            string? brand = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(brand)) asset.Brand = brand;
+            Console.WriteLine($"Updating {asset.AssetType} ({asset.Brand} {asset.ModelName})");
 
             Console.Write($"Model Name ({asset.ModelName}): ");
             string? model = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(model)) asset.ModelName = model;
 
-            Console.Write($"Purchase Price ({asset.PurchasePrice}): ");
-            if (decimal.TryParse(Console.ReadLine(), out var price))
-                asset.PurchasePrice = price;
+            Console.Write($"Serial Number ({asset.SerialNumber}): ");
+            string? serial = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(serial)) asset.SerialNumber = serial;
+
+            Console.Write($"Purchase Price USD ({asset.PurchasePriceUSD}): ");
+            if (decimal.TryParse(Console.ReadLine(), out var priceUsd))
+                asset.PurchasePriceUSD = priceUsd;
+
+            Console.Write($"Local Price ({asset.LocalPrice}): ");
+            if (decimal.TryParse(Console.ReadLine(), out var localPrice))
+                asset.LocalPrice = localPrice;
+
+            Console.Write($"Warranty Expiration ({asset.WarrantyExpiration:yyyy-MM-dd}): ");
+            if (DateTime.TryParse(Console.ReadLine(), out var warranty))
+                asset.WarrantyExpiration = warranty;
+
+            // ComputerAsset update
+            if (asset is ComputerAsset comp)
+            {
+                Console.Write($"CPU ({comp.CPU}): ");
+                string? cpu = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(cpu)) comp.CPU = cpu;
+
+                Console.Write($"RAM ({comp.RAM}): ");
+                string? ram = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(ram)) comp.RAM = ram;
+
+                Console.Write($"Storage ({comp.Storage}): ");
+                string? storage = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(storage)) comp.Storage = storage;
+
+                Console.Write($"GPU ({comp.GPU}): ");
+                string? gpu = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(gpu)) comp.GPU = gpu;
+            }
+
+            // MobileAsset update
+            if (asset is MobileAsset mob)
+            {
+                Console.Write($"Operating System ({mob.OperatingSystem}): ");
+                string? os = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(os)) mob.OperatingSystem = os;
+
+                Console.Write($"Screen Size ({mob.ScreenSize}): ");
+                string? screen = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(screen)) mob.ScreenSize = screen;
+
+                Console.Write($"Battery Capacity ({mob.BatteryCapacity}): ");
+                string? battery = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(battery)) mob.BatteryCapacity = battery;
+            }
 
             _context.SaveChanges();
 
@@ -145,7 +260,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
+        // ============================================================
         // DELETE
+        // ============================================================
         public void DeleteAsset()
         {
             Console.Clear();
@@ -174,9 +291,9 @@ namespace SmartAssetTracking.App.Services
             Console.ReadKey();
         }
 
-        // ============================
-        // ASSET REPORT
-        // ============================
+        // ============================================================
+        // ASSET REPORT (UPDATED FOR INHERITANCE)
+        // ============================================================
         public void AssetReport()
         {
             Console.Clear();
@@ -194,20 +311,15 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            int totalAssets = assets.Count;
-            decimal totalValue = assets.Sum(a => a.PurchasePrice);
-
-            var oldest = assets.OrderBy(a => a.PurchaseDate).First();
-            var newest = assets.OrderByDescending(a => a.PurchaseDate).First();
-
-            Console.WriteLine($"Total Assets: {totalAssets}");
-            Console.WriteLine($"Total Value: {totalValue:C}");
+            Console.WriteLine($"Total Assets: {assets.Count}");
+            Console.WriteLine($"Total Value (USD): {assets.Sum(a => a.PurchasePriceUSD):C}");
+            Console.WriteLine($"Total Local Value: {assets.Sum(a => a.LocalPrice):C}");
             Console.WriteLine("----------------------------------------");
 
             Console.WriteLine("Assets Per Office:");
             var groupedByOffice = assets
                 .GroupBy(a => a.Office?.OfficeName ?? "None")
-                .Select(g => new { Office = g.Key, Count = g.Count(), Value = g.Sum(a => a.PurchasePrice) });
+                .Select(g => new { Office = g.Key, Count = g.Count(), Value = g.Sum(a => a.PurchasePriceUSD) });
 
             foreach (var office in groupedByOffice)
             {
@@ -216,19 +328,45 @@ namespace SmartAssetTracking.App.Services
 
             Console.WriteLine("----------------------------------------");
 
-            Console.WriteLine("Oldest Asset:");
-            Console.WriteLine($"{oldest.Id} | {oldest.Brand} {oldest.ModelName} | {oldest.PurchaseDate:yyyy-MM-dd}");
+            Console.WriteLine("Detailed Asset List:");
+            foreach (var a in assets)
+            {
+                Console.WriteLine("--------------------------------------------------");
+                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName}");
+                Console.WriteLine($"Serial: {a.SerialNumber}");
+                Console.WriteLine($"Purchase: {a.PurchaseDate:yyyy-MM-dd}");
+                Console.WriteLine($"Price USD: {a.PurchasePriceUSD:C}");
+                Console.WriteLine($"Local Price: {a.LocalPrice:C}");
+                Console.WriteLine($"Warranty: {a.WarrantyExpiration:yyyy-MM-dd}");
+                Console.WriteLine($"Lifecycle: {a.LifecycleStatus}");
+                Console.WriteLine($"Office: {a.Office?.OfficeName ?? "None"}");
+                Console.WriteLine($"Employee: {a.Employee?.FullName ?? "None"}");
 
-            Console.WriteLine("Newest Asset:");
-            Console.WriteLine($"{newest.Id} | {newest.Brand} {newest.ModelName} | {newest.PurchaseDate:yyyy-MM-dd}");
+                if (a is ComputerAsset comp)
+                {
+                    Console.WriteLine("---- Computer Specs ----");
+                    Console.WriteLine($"CPU: {comp.CPU}");
+                    Console.WriteLine($"RAM: {comp.RAM}");
+                    Console.WriteLine($"Storage: {comp.Storage}");
+                    Console.WriteLine($"GPU: {comp.GPU}");
+                }
 
-            Console.WriteLine("\nPress ENTER to continue...");
+                if (a is MobileAsset mob)
+                {
+                    Console.WriteLine("---- Mobile Specs ----");
+                    Console.WriteLine($"OS: {mob.OperatingSystem}");
+                    Console.WriteLine($"Screen: {mob.ScreenSize}");
+                    Console.WriteLine($"Battery: {mob.BatteryCapacity}");
+                }
+            }
+
+            Console.WriteLine("--------------------------------------------------");
             Console.ReadKey();
         }
 
-        // ============================
-        // MASS INSERT: 10 ASSETS
-        // ============================
+        // ============================================================
+        // MASS INSERT
+        // ============================================================
         public void Add10Assets()
         {
             Console.Clear();
@@ -244,14 +382,20 @@ namespace SmartAssetTracking.App.Services
 
             for (int i = 1; i <= 10; i++)
             {
-                var asset = new Asset
+                var asset = new Laptop
                 {
                     AssetType = "Laptop",
                     Brand = $"Brand {i}",
                     ModelName = $"Model {i}",
                     PurchaseDate = DateTime.Now.AddDays(-i),
                     PurchasePrice = 5000 + (i * 100),
-                    OfficeId = firstOffice.Id
+                    PurchasePriceUSD = 5000 + (i * 100),
+                    LocalPrice = 5000 + (i * 100),
+                    OfficeId = firstOffice.Id,
+                    CPU = "Intel i5",
+                    RAM = "8GB",
+                    Storage = "256GB SSD",
+                    GPU = "Integrated"
                 };
 
                 _context.Assets.Add(asset);

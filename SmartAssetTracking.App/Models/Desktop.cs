@@ -4,6 +4,7 @@ namespace SmartAssetTracking.App.Models
     {
         public Desktop()
         {
+            AssetType = "Desktop";
             Brand = "Desktop";
         }
     }

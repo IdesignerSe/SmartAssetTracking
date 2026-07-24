@@ -4,6 +4,7 @@ namespace SmartAssetTracking.App.Models
     {
         public Laptop()
         {
+            AssetType = "Laptop";
             Brand = "Laptop";
         }
     }
