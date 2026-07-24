@@ -5,48 +5,31 @@ namespace SmartAssetTracking.App.Data
 {
     public class AssetDbContext : DbContext
     {
-        public DbSet<Asset> Assets { get; set; }
-        public DbSet<Office> Offices { get; set; }
-        public DbSet<Employee> Employees { get; set; }
-        public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        public AssetDbContext(DbContextOptions<AssetDbContext> options)
+            : base(options)
         {
-            // ⭐ Databasen hamnar nu i SmartAssetTracking.App/Data/
-            options.UseSqlite("Data Source=Data/assets.db");
         }
+
+        public DbSet<Asset> Assets { get; set; } = null!;
+        public DbSet<Office> Offices { get; set; } = null!;
+        public DbSet<Employee> Employees { get; set; } = null!;
+        public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // ⭐ Inheritance mapping
-            modelBuilder.Entity<ComputerAsset>().HasBaseType<Asset>();
-            modelBuilder.Entity<MobileAsset>().HasBaseType<Asset>();
+            base.OnModelCreating(modelBuilder);
 
-            // ⭐ Force LocalPrice to be NUMERIC (prevents sorting crash)
-            modelBuilder.Entity<Asset>()
-                .Property(a => a.LocalPrice)
-                .HasColumnType("NUMERIC");
-
-            // ⭐ Office → Assets (1-to-many)
-            modelBuilder.Entity<Office>()
-                .HasMany(o => o.Assets)
-                .WithOne(a => a.Office)
-                .HasForeignKey(a => a.OfficeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // ⭐ Employee → Assets (1-to-many)
-            modelBuilder.Entity<Employee>()
-                .HasMany(e => e.AssignedAssets)
-                .WithOne(a => a.AssignedEmployee)
-                .HasForeignKey(a => a.EmployeeId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // ⭐ Maintenance → Asset (1-to-many)
-            modelBuilder.Entity<MaintenanceRecord>()
-                .HasOne(m => m.Asset)
-                .WithMany()
-                .HasForeignKey(m => m.AssetId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Seed default admin user
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    Username = "admin",
+                    Password = "admin",
+                    Role = UserRole.Admin
+                }
+            );
         }
     }
 }
