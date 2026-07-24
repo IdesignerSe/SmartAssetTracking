@@ -5,23 +5,23 @@ namespace SmartAssetTracking.App.Models
         public int Id { get; set; }
 
         // Basic info
-        public string? AssetType { get; set; }
-        public string? Brand { get; set; }
-        public string? ModelName { get; set; }
-        public string? SerialNumber { get; set; }
+        public string AssetType { get; set; } = string.Empty;
+        public string Brand { get; set; } = string.Empty;
+        public string ModelName { get; set; } = string.Empty;
 
         // Purchase info
         public DateTime PurchaseDate { get; set; }
-        public decimal PurchasePriceUSD { get; set; }
-        public decimal LocalPrice { get; set; }
-        public DateTime WarrantyExpiration { get; set; }
+        public decimal PurchasePrice { get; set; }
 
-        // Office relation (LEVEL 3)
+        // Office relation
         public int OfficeId { get; set; }
-        public Office? Office { get; set; }
+        public Office Office { get; set; } = null!;
 
-        // Employee relation (LEVEL 5)
+        // Employee assignment (Level 5)
         public int? EmployeeId { get; set; }
-        public Employee? AssignedEmployee { get; set; }
+        public Employee? Employee { get; set; }
+
+        // Maintenance tracking (Level 5)
+        public List<MaintenanceRecord> MaintenanceRecords { get; set; } = new();
     }
 }
