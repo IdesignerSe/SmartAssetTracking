@@ -45,7 +45,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // SHOW ALL EMPLOYEES
+        // SHOW EMPLOYEES
         // ============================================================
         public void ShowEmployees()
         {
@@ -117,6 +117,56 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
+        // SHOW EMPLOYEE ASSETS (FIX FOR PROGRAM.CS)
+        // ============================================================
+        public void ShowEmployeeAssets()
+        {
+            Console.Clear();
+            Console.WriteLine("=== EMPLOYEE ASSETS ===");
+
+            Console.Write("Employee ID: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Invalid ID.");
+                Console.ReadKey();
+                return;
+            }
+
+            var emp = _context.Employees
+                .Include(e => e.Assets)
+                .ThenInclude(a => a.MaintenanceRecords)
+                .FirstOrDefault(e => e.Id == id);
+
+            if (emp == null)
+            {
+                Console.WriteLine("Employee not found.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine($"Employee: {emp.FullName}");
+            Console.WriteLine($"Department: {emp.Department}");
+            Console.WriteLine($"Email: {emp.Email}");
+            Console.WriteLine("----------------------------------------");
+
+            if (!emp.Assets.Any())
+            {
+                Console.WriteLine("This employee has no assigned assets.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.WriteLine("Assigned Assets:");
+            foreach (var a in emp.Assets)
+            {
+                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} {a.ModelName} | {a.SerialNumber}");
+            }
+
+            Console.WriteLine("----------------------------------------");
+            Console.ReadKey();
+        }
+
+        // ============================================================
         // UPDATE EMPLOYEE
         // ============================================================
         public void UpdateEmployee()
@@ -159,7 +209,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // DELETE EMPLOYEE (SAFE)
+        // DELETE EMPLOYEE
         // ============================================================
         public void DeleteEmployee()
         {
@@ -245,6 +295,63 @@ namespace SmartAssetTracking.App.Services
             _context.SaveChanges();
 
             Console.WriteLine("Asset assigned to employee!");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // MASS INSERT EMPLOYEES (FIX FOR PROGRAM.CS)
+        // ============================================================
+        public void Add10Employees()
+        {
+            Console.Clear();
+            Console.WriteLine("=== MASS INSERT: 10 EMPLOYEES ===");
+
+            for (int i = 1; i <= 10; i++)
+            {
+                var emp = new Employee
+                {
+                    FullName = $"Employee {i}",
+                    Department = "IT",
+                    Email = $"employee{i}@company.com"
+                };
+
+                _context.Employees.Add(emp);
+            }
+
+            _context.SaveChanges();
+
+            Console.WriteLine("10 employees added!");
+            Console.ReadKey();
+        }
+
+        // ============================================================
+        // EMPLOYEE REPORT (OPTIONAL BUT USED IN PROGRAM.CS)
+        // ============================================================
+        public void EmployeeReport()
+        {
+            Console.Clear();
+            Console.WriteLine("=== EMPLOYEE REPORT ===");
+
+            var employees = _context.Employees
+                .Include(e => e.Assets)
+                .ToList();
+
+            if (!employees.Any())
+            {
+                Console.WriteLine("No employees found.");
+                Console.ReadKey();
+                return;
+            }
+
+            foreach (var e in employees)
+            {
+                Console.WriteLine("----------------------------------------");
+                Console.WriteLine($"{e.Id} | {e.FullName} | {e.Department}");
+                Console.WriteLine($"Email: {e.Email}");
+                Console.WriteLine($"Assets: {e.Assets.Count}");
+            }
+
+            Console.WriteLine("----------------------------------------");
             Console.ReadKey();
         }
     }

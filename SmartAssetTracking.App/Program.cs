@@ -70,7 +70,7 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("6. Exit");
                 Console.WriteLine("7. Export");
                 Console.WriteLine("8. Search");
-                Console.WriteLine("9. Mass‑Insert Mode");   // ⭐ NEW
+                Console.WriteLine("9. Mass‑Insert Mode");
                 Console.Write("Choose option: ");
 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
@@ -167,7 +167,7 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("2. Show Offices");
                 Console.WriteLine("3. Assign Asset to Office");
                 Console.WriteLine("4. Office Report");
-                Console.WriteLine("5. Update Office");   // ⭐ NEW
+                Console.WriteLine("5. Update Office");
                 Console.WriteLine("6. Delete Office");
                 Console.WriteLine("7. Back");
                 Console.Write("Choose option: ");
@@ -201,8 +201,10 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("2. Show Assets");
                 Console.WriteLine("3. Update Asset");
                 Console.WriteLine("4. Delete Asset");
-                Console.WriteLine("5. Asset Report");   // ⭐ NEW
-                Console.WriteLine("6. Back");
+                Console.WriteLine("5. Asset Report");
+                Console.WriteLine("6. Add Maintenance Record");
+                Console.WriteLine("7. Show Maintenance");
+                Console.WriteLine("8. Back");
                 Console.Write("Choose option: ");
 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
@@ -215,7 +217,9 @@ namespace SmartAssetTracking.App
                     case 3: assetService.UpdateAsset(); break;
                     case 4: assetService.DeleteAsset(); break;
                     case 5: assetService.AssetReport(); break;
-                    case 6: return;
+                    case 6: assetService.AddMaintenanceRecord(); break;
+                    case 7: assetService.ShowMaintenance(); break;
+                    case 8: return;
                 }
             }
         }
@@ -235,7 +239,7 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("4. Delete Employee");
                 Console.WriteLine("5. Assign Asset");
                 Console.WriteLine("6. Show Employee Assets");
-                Console.WriteLine("7. Employee Report");   // ⭐ NEW
+                Console.WriteLine("7. Employee Report");
                 Console.WriteLine("8. Back");
                 Console.Write("Choose option: ");
 
@@ -267,9 +271,9 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("=== MAINTENANCE ===");
                 Console.WriteLine("1. Add Maintenance Record");
                 Console.WriteLine("2. Show Maintenance Records");
-                Console.WriteLine("3. Update Maintenance Record");   // ⭐ NEW
-                Console.WriteLine("4. Delete Maintenance Record");   // ⭐ NEW
-                Console.WriteLine("5. Maintenance Cost Report");     // ⭐ NEW
+                Console.WriteLine("3. Update Maintenance Record");
+                Console.WriteLine("4. Delete Maintenance Record");
+                Console.WriteLine("5. Maintenance Cost Report");
                 Console.WriteLine("6. Back");
                 Console.Write("Choose option: ");
 
