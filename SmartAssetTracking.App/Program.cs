@@ -55,7 +55,9 @@ namespace SmartAssetTracking.App
             var employeeService = new EmployeeService(context);
             var maintenanceService = new MaintenanceService(context);
             var dashboardService = new DashboardService(context);
-            var officeService = new OfficeService(context); // ⭐ OfficeService för admin
+            var officeService = new OfficeService(context);
+            var searchService = new SearchService(context);
+            var exportService = new ExportService(context);
 
             while (true)
             {
@@ -65,8 +67,10 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("2. Employee Management");
                 Console.WriteLine("3. Maintenance");
                 Console.WriteLine("4. Dashboard");
-                Console.WriteLine("5. Office Management"); // ⭐ Ny meny
+                Console.WriteLine("5. Office Management");
                 Console.WriteLine("6. Exit");
+                Console.WriteLine("7. Export");   // ⭐ FIX: Export synlig
+                Console.WriteLine("8. Search");   // ⭐ FIX: Search synlig
                 Console.Write("Choose option: ");
 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
@@ -87,10 +91,16 @@ namespace SmartAssetTracking.App
                         dashboardService.ShowDashboard();
                         break;
                     case 5:
-                        OfficeMenu(officeService); // ⭐ Ny meny
+                        OfficeMenu(officeService);
                         break;
                     case 6:
                         return;
+                    case 7:
+                        exportService.ExportMenu();
+                        break;
+                    case 8:
+                        searchService.SearchAssets();
+                        break;
                 }
             }
         }
@@ -193,8 +203,9 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("=== ASSET MANAGEMENT ===");
                 Console.WriteLine("1. Add Asset");
                 Console.WriteLine("2. Show Assets");
-                Console.WriteLine("3. Delete Asset");
-                Console.WriteLine("4. Back");
+                Console.WriteLine("3. Update Asset");
+                Console.WriteLine("4. Delete Asset");
+                Console.WriteLine("5. Back");
                 Console.Write("Choose option: ");
 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
@@ -209,9 +220,12 @@ namespace SmartAssetTracking.App
                         assetService.ShowAssets();
                         break;
                     case 3:
-                        assetService.DeleteAsset();
+                        assetService.UpdateAsset();
                         break;
                     case 4:
+                        assetService.DeleteAsset();
+                        break;
+                    case 5:
                         return;
                 }
             }
@@ -228,8 +242,11 @@ namespace SmartAssetTracking.App
                 Console.WriteLine("=== EMPLOYEE MANAGEMENT ===");
                 Console.WriteLine("1. Add Employee");
                 Console.WriteLine("2. Show Employees");
-                Console.WriteLine("3. Assign Asset");
-                Console.WriteLine("4. Back");
+                Console.WriteLine("3. Update Employee");
+                Console.WriteLine("4. Delete Employee");
+                Console.WriteLine("5. Assign Asset");
+                Console.WriteLine("6. Show Employee Assets");
+                Console.WriteLine("7. Back");
                 Console.Write("Choose option: ");
 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
@@ -247,6 +264,15 @@ namespace SmartAssetTracking.App
                         employeeService.AssignAssetToEmployee();
                         break;
                     case 4:
+                        employeeService.DeleteEmployee();
+                        break;
+                    case 5:
+                        employeeService.AssignAssetToEmployee();
+                        break;
+                    case 6:
+                        employeeService.ShowEmployeeAssets();
+                        break;
+                    case 7:
                         return;
                 }
             }
