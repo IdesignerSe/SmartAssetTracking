@@ -53,28 +53,24 @@ namespace SmartAssetTracking.App.Services
         {
             using var db = new AssetDbContext();
 
-            // Show assets
             Console.WriteLine("\nAvailable Assets:");
             foreach (var a in db.Assets)
                 Console.WriteLine($"{a.Id}. {a.Brand} {a.ModelName}");
 
             Console.Write("Asset ID: ");
             string assetInput = Console.ReadLine()!;
-
             if (!int.TryParse(assetInput, out int assetId))
             {
                 Console.WriteLine("Invalid input. Must be a number.");
                 return;
             }
 
-            // Show offices
             Console.WriteLine("\nAvailable Offices:");
             foreach (var o in db.Offices)
                 Console.WriteLine($"{o.Id}. {o.OfficeName} ({o.Country})");
 
             Console.Write("Office ID: ");
             string officeInput = Console.ReadLine()!;
-
             if (!int.TryParse(officeInput, out int officeId))
             {
                 Console.WriteLine("Invalid input. Must be a number.");
@@ -93,7 +89,6 @@ namespace SmartAssetTracking.App.Services
             asset.OfficeId = officeId;
             asset.Office = office;
 
-            // Currency conversion
             asset.LocalPrice = CurrencyService.ConvertUSD(asset.PurchasePriceUSD, office.Currency);
 
             db.SaveChanges();
@@ -107,7 +102,6 @@ namespace SmartAssetTracking.App.Services
 
             Console.Write("Office ID: ");
             string input = Console.ReadLine()!;
-
             if (!int.TryParse(input, out int officeId))
             {
                 Console.WriteLine("Invalid input. Must be a number.");
@@ -132,13 +126,15 @@ namespace SmartAssetTracking.App.Services
             {
                 string status = CalculateStatus(a.PurchaseDate);
 
-                Console.WriteLine($"{a.Id} | {a.AssetType} | {a.Brand} | {a.LocalPrice} {office.Currency} | {status}");
+                Console.WriteLine(
+                    $"{a.Id} | {a.AssetType} | {a.Brand} | " +
+                    $"{a.LocalPrice} {office.Currency} | {status}"
+                );
             }
 
             Console.WriteLine($"\nTotal Office Value: {totalValue} {office.Currency}");
         }
 
-        // ⭐ NEW: DELETE OFFICE
         public void DeleteOffice()
         {
             using var db = new AssetDbContext();
@@ -149,7 +145,6 @@ namespace SmartAssetTracking.App.Services
 
             Console.Write("Enter Office ID to delete: ");
             string input = Console.ReadLine()!;
-
             if (!int.TryParse(input, out int id))
             {
                 Console.WriteLine("Invalid input.");
@@ -166,7 +161,6 @@ namespace SmartAssetTracking.App.Services
                 return;
             }
 
-            // Remove assets first (optional but safe)
             foreach (var asset in office.Assets)
                 db.Assets.Remove(asset);
 

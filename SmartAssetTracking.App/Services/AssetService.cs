@@ -20,10 +20,18 @@ namespace SmartAssetTracking.App.Services
             string model = Console.ReadLine()!;
 
             Console.Write("Purchase Date (yyyy-mm-dd): ");
-            DateTime purchaseDate = DateTime.Parse(Console.ReadLine()!);
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime purchaseDate))
+            {
+                Console.WriteLine("Invalid date format.");
+                return;
+            }
 
             Console.Write("Purchase Price (USD): ");
-            decimal price = decimal.Parse(Console.ReadLine()!);
+            if (!decimal.TryParse(Console.ReadLine(), out decimal price))
+            {
+                Console.WriteLine("Invalid price format.");
+                return;
+            }
 
             Console.Write("Serial Number: ");
             string serial = Console.ReadLine()!;
@@ -41,13 +49,19 @@ namespace SmartAssetTracking.App.Services
             asset.SerialNumber = serial;
             asset.WarrantyExpiration = purchaseDate.AddYears(3);
 
-            // --- OFFICE SELECTION ---
+            // --- OFFICE SELECTION (SAFE INPUT) ---
             Console.WriteLine("\nAvailable Offices:");
             foreach (var o in db.Offices)
                 Console.WriteLine($"{o.Id}. {o.OfficeName} ({o.Country})");
 
             Console.Write("Choose Office ID: ");
-            int officeId = int.Parse(Console.ReadLine()!);
+            string officeInput = Console.ReadLine()!;
+
+            if (!int.TryParse(officeInput, out int officeId))
+            {
+                Console.WriteLine("Invalid input. You must enter a number.");
+                return;
+            }
 
             var office = db.Offices.FirstOrDefault(o => o.Id == officeId);
 
@@ -75,7 +89,7 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             var assets = db.Assets
-                .Include(a => a.Office)                 // Load Office relation
+                .Include(a => a.Office)
                 .OrderBy(a => a.AssetType)
                 .ThenByDescending(a => a.PurchaseDate)
                 .ToList();
@@ -117,7 +131,13 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             Console.Write("Enter Asset ID to update: ");
-            int id = int.Parse(Console.ReadLine()!);
+            string input = Console.ReadLine()!;
+
+            if (!int.TryParse(input, out int id))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
 
             var asset = db.Assets.FirstOrDefault(a => a.Id == id);
 
@@ -143,7 +163,13 @@ namespace SmartAssetTracking.App.Services
             using var db = new AssetDbContext();
 
             Console.Write("Enter Asset ID to delete: ");
-            int id = int.Parse(Console.ReadLine()!);
+            string input = Console.ReadLine()!;
+
+            if (!int.TryParse(input, out int id))
+            {
+                Console.WriteLine("Invalid input.");
+                return;
+            }
 
             var asset = db.Assets.FirstOrDefault(a => a.Id == id);
 
