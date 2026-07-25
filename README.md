@@ -2,6 +2,31 @@
 Ett komplett .NET Console-projekt för att hantera företagsinventarier globalt.
 Projektet följer kraven från skoluppgiften och är uppdelat i tydliga nivåer (Level 1–5).
 
+How to start the project:
+dotnet build
+
+dotnet run
+
+After you see the menu:
+
+=== LOGIN ===                                                                                    
+Username: admin                                                                                  
+Password: admin  
+
+and then you will able to see the whole Menu:
+
+=== ADMIN MENU ===                                                                               
+1. Asset Management                                                                              
+2. Employee Management                                                                           
+3. Maintenance                                                                                   
+4. Dashboard                                                                                     
+5. Office Management                                                                             
+6. Exit                                                                                          
+7. Export                                                                                        
+8. Search                                                                                        
+9. Mass‑Insert Mode                                                                              
+Choose option: 
+
 🚀 Features (Sammanfattning)
 Systemet stödjer:
 
@@ -179,12 +204,3 @@ Assets per employee
 Most used asset type
 
 Most expensive office
-
-🧪 Bonus (Optional)
-REST API
-
-Blazor/MVC UI
-
-Docker
-
-Unit tests
