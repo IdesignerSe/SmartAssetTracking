@@ -35,52 +35,50 @@ Dashboard-statistik
 
 ```text
 
-SmartAssetTracking/
-│
-├── SmartAssetTracking.sln
+SmartAssetTracking.App/
 │
 ├── /Data
 │   ├── AssetDbContext.cs
-│   ├── SeedData.cs
-│   └── Migrations/
+│   ├── DesignTimeDbContextFactory.cs
+│   └── assets.db
+│
+├── /Migrations
+│   ├── initial.cs
+│   ├── inheritanceSupport.cs
+│   └── assetDBContextModelSnapshot.cs
 │
 ├── /Models
 │   ├── Asset.cs
 │   ├── ComputerAsset.cs
-│   ├── MobileAsset.cs
-│   ├── Office.cs
+│   ├── Desktop.cs
 │   ├── Employee.cs
+│   ├── iPhone.cs7
+│   ├── Laptop.cs
+│   ├── LifecycleStatus.cs
 │   ├── MaintenanceRecord.cs
-│
-├── /Repositories
-│   ├── IAssetRepository.cs
-│   ├── AssetRepository.cs
-│   ├── IEmployeeRepository.cs
-│   ├── EmployeeRepository.cs
-│   └── OfficeRepository.cs
+│   ├── MobileAsset.cs
+│   ├── Nokia.cs
+│   ├── Samsung.cs
+│   ├── Office.cs
+│   ├── Table.cs
+│   ├── User.cs
+│   └── UserRole.cs
 │
 ├── /Services
 │   ├── AssetService.cs
-│   ├── OfficeService.cs
-│   ├── EmployeeService.cs
 │   ├── CurrencyService.cs
-│   └── ReportService.cs
-│
-├── /Helpers
-│   ├── InputValidator.cs
-│   ├── ConsoleMenu.cs
-│   ├── CurrencyConverter.cs
-│   ├── AssetStatusCalculator.cs
-│   └── Exporter.cs   // TXT, CSV, JSON
+│   ├── DashboardService.cs
+│   ├── EmployeeService.cs
+│   ├── ExportService.cs
+│   ├── LoginService.cs
+│   ├── MaintananceService.cs
+│   └── SearchService.cs
 │
 ├── /Reports
-│   ├── OfficeReport.cs
-│   ├── AssetReport.cs
-│   └── ExportTemplates/
+│   └── ExportTemplates/ They will deposited here.
 │
-├── /Auth
-│   ├── LoginService.cs
-│   └── Roles.cs
+├── /UI
+│   └── Menu.cs
 │
 ├── Program.cs
 └── README.md
