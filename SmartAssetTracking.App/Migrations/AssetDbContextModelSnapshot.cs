@@ -39,6 +39,9 @@ namespace SmartAssetTracking.App.Migrations
                     b.Property<int?>("EmployeeId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("LifecycleStatus")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("LocalPrice")
                         .HasColumnType("TEXT");
 
@@ -134,6 +137,10 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Currency")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -257,7 +264,7 @@ namespace SmartAssetTracking.App.Migrations
             modelBuilder.Entity("SmartAssetTracking.App.Models.Asset", b =>
                 {
                     b.HasOne("SmartAssetTracking.App.Models.Employee", "Employee")
-                        .WithMany("AssignedAssets")
+                        .WithMany("Assets")
                         .HasForeignKey("EmployeeId");
 
                     b.HasOne("SmartAssetTracking.App.Models.Office", "Office")
@@ -289,7 +296,7 @@ namespace SmartAssetTracking.App.Migrations
 
             modelBuilder.Entity("SmartAssetTracking.App.Models.Employee", b =>
                 {
-                    b.Navigation("AssignedAssets");
+                    b.Navigation("Assets");
                 });
 
             modelBuilder.Entity("SmartAssetTracking.App.Models.Office", b =>

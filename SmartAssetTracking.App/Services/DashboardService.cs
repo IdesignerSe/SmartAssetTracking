@@ -70,7 +70,7 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("\n--- Employees ---");
 
             var employees = _context.Employees
-                .Include(e => e.AssignedAssets)
+                .Include(e => e.Assets)   // FIXED
                 .ToList();
 
             if (!employees.Any())
@@ -81,7 +81,7 @@ namespace SmartAssetTracking.App.Services
 
             foreach (var emp in employees)
             {
-                int assigned = emp.AssignedAssets.Count;
+                int assigned = emp.Assets.Count;   // FIXED
 
                 Console.WriteLine(
                     $"{emp.Id}. {emp.FullName} ({emp.Department}) → {assigned} assets"

@@ -1,0 +1,39 @@
+=== ASSET EXPORT ===
+Generated: 2026-07-25 12:23
+----------------------------------------
+ID: 1
+Type: Laptop
+Brand: Laptop
+Model: Apple
+Office: Stockholm HQ (Sweden)
+Price: 1 200,00 kr
+Employee: Anders Svensson
+Purchase Date: 2022-01-01
+----------------------------------------
+ID: 2
+Type: Desktop
+Brand: Desktop
+Model: Dell
+Office: Berlin (Germany)
+Price: 400,00 kr
+Employee: Maria Colleman
+Purchase Date: 2010-01-01
+----------------------------------------
+ID: 3
+Type: iPhone
+Brand: Apple
+Model: Iphone 17
+Office: New York (USA)
+Price: 800,00 kr
+Employee: Gruber Grönning
+Purchase Date: 2026-03-01
+----------------------------------------
+ID: 4
+Type: Samsung
+Brand: Samsung
+Model: MN-1234
+Office: Berlin (Germany)
+Price: 200,00 kr
+Employee: Anders Svensson
+Purchase Date: 2009-01-01
+----------------------------------------

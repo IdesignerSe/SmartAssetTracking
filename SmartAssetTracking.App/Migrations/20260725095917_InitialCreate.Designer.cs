@@ -11,8 +11,8 @@ using SmartAssetTracking.App.Data;
 namespace SmartAssetTracking.App.Migrations
 {
     [DbContext(typeof(AssetDbContext))]
-    [Migration("20260724185934_AddInheritanceSupport")]
-    partial class AddInheritanceSupport
+    [Migration("20260725095917_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,9 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("EmployeeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LifecycleStatus")
                         .HasColumnType("INTEGER");
 
                     b.Property<decimal>("LocalPrice")
@@ -137,6 +140,10 @@ namespace SmartAssetTracking.App.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Currency")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -260,7 +267,7 @@ namespace SmartAssetTracking.App.Migrations
             modelBuilder.Entity("SmartAssetTracking.App.Models.Asset", b =>
                 {
                     b.HasOne("SmartAssetTracking.App.Models.Employee", "Employee")
-                        .WithMany("AssignedAssets")
+                        .WithMany("Assets")
                         .HasForeignKey("EmployeeId");
 
                     b.HasOne("SmartAssetTracking.App.Models.Office", "Office")
@@ -292,7 +299,7 @@ namespace SmartAssetTracking.App.Migrations
 
             modelBuilder.Entity("SmartAssetTracking.App.Models.Employee", b =>
                 {
-                    b.Navigation("AssignedAssets");
+                    b.Navigation("Assets");
                 });
 
             modelBuilder.Entity("SmartAssetTracking.App.Models.Office", b =>

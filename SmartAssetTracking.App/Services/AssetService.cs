@@ -14,7 +14,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // CREATE (UPDATED FOR INHERITANCE)
+        // CREATE (UPDATED FOR INHERITANCE + TEXT INPUT FIX)
         // ============================================================
         public void AddAsset()
         {
@@ -29,7 +29,26 @@ namespace SmartAssetTracking.App.Services
             Console.WriteLine("6. Tablet");
             Console.Write("Your choice: ");
 
-            var choice = Console.ReadLine();
+            string raw = Console.ReadLine()?.Trim().ToLower() ?? "";
+
+            // FIX: Accept both numbers and text
+            string choice = raw switch
+            {
+                "1" or "laptop" => "1",
+                "2" or "desktop" => "2",
+                "3" or "iphone" => "3",
+                "4" or "samsung" => "4",
+                "5" or "nokia" => "5",
+                "6" or "tablet" => "6",
+                _ => ""
+            };
+
+            if (choice == "")
+            {
+                Console.WriteLine("Invalid choice. Press ENTER to return.");
+                Console.ReadKey();
+                return;
+            }
 
             Asset asset = choice switch
             {
@@ -113,7 +132,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // READ (UPDATED FOR INHERITANCE + MAINTENANCE)
+        // READ (UNCHANGED)
         // ============================================================
         public void ShowAssets()
         {
@@ -149,7 +168,6 @@ namespace SmartAssetTracking.App.Services
                 Console.WriteLine($"Office: {a.Office?.OfficeName ?? "None"}");
                 Console.WriteLine($"Employee: {a.Employee?.FullName ?? "None"}");
 
-                // ComputerAsset fields
                 if (a is ComputerAsset comp)
                 {
                     Console.WriteLine("---- Computer Specs ----");
@@ -159,7 +177,6 @@ namespace SmartAssetTracking.App.Services
                     Console.WriteLine($"GPU: {comp.GPU}");
                 }
 
-                // MobileAsset fields
                 if (a is MobileAsset mob)
                 {
                     Console.WriteLine("---- Mobile Specs ----");
@@ -168,7 +185,6 @@ namespace SmartAssetTracking.App.Services
                     Console.WriteLine($"Battery Capacity: {mob.BatteryCapacity}");
                 }
 
-                // Maintenance records
                 if (a.MaintenanceRecords.Any())
                 {
                     Console.WriteLine("---- Maintenance ----");
@@ -184,7 +200,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // UPDATE (UPDATED FOR INHERITANCE)
+        // UPDATE (UNCHANGED)
         // ============================================================
         public void UpdateAsset()
         {
@@ -229,7 +245,6 @@ namespace SmartAssetTracking.App.Services
             if (DateTime.TryParse(Console.ReadLine(), out var warranty))
                 asset.WarrantyExpiration = warranty;
 
-            // ComputerAsset update
             if (asset is ComputerAsset comp)
             {
                 Console.Write($"CPU ({comp.CPU}): ");
@@ -249,7 +264,6 @@ namespace SmartAssetTracking.App.Services
                 if (!string.IsNullOrWhiteSpace(gpu)) comp.GPU = gpu;
             }
 
-            // MobileAsset update
             if (asset is MobileAsset mob)
             {
                 Console.Write($"Operating System ({mob.OperatingSystem}): ");
@@ -272,7 +286,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // DELETE
+        // DELETE (UNCHANGED)
         // ============================================================
         public void DeleteAsset()
         {
@@ -303,7 +317,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // ADD MAINTENANCE RECORD (NEW IN STEP 11)
+        // MAINTENANCE (UNCHANGED)
         // ============================================================
         public void AddMaintenanceRecord()
         {
@@ -351,7 +365,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // SHOW MAINTENANCE HISTORY (NEW IN STEP 11)
+        // SHOW MAINTENANCE (UNCHANGED)
         // ============================================================
         public void ShowMaintenance()
         {
@@ -399,7 +413,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // ASSET REPORT (UPDATED FOR MAINTENANCE)
+        // REPORT (UNCHANGED)
         // ============================================================
         public void AssetReport()
         {
@@ -482,7 +496,7 @@ namespace SmartAssetTracking.App.Services
         }
 
         // ============================================================
-        // MASS INSERT
+        // MASS INSERT (UNCHANGED)
         // ============================================================
         public void Add10Assets()
         {

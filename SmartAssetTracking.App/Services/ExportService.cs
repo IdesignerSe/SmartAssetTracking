@@ -14,7 +14,6 @@ namespace SmartAssetTracking.App.Services
         {
             _context = context;
 
-            // ⭐ Export folder in project root
             _exportFolder = Path.Combine(Directory.GetCurrentDirectory(), "Reports");
 
             if (!Directory.Exists(_exportFolder))
@@ -48,10 +47,6 @@ namespace SmartAssetTracking.App.Services
                 case 5: return;
             }
         }
-
-        // ============================
-        // SUB-MENUS
-        // ============================
 
         private void ExportAssetsMenu()
         {
@@ -202,7 +197,7 @@ namespace SmartAssetTracking.App.Services
 
         private void ExportEmployeesCSV()
         {
-            var employees = _context.Employees.Include(e => e.AssignedAssets).ToList();
+            var employees = _context.Employees.Include(e => e.Assets).ToList();   // FIXED
             if (!employees.Any()) { Console.WriteLine("No employees to export."); Console.ReadKey(); return; }
 
             string path = Path.Combine(_exportFolder, "employees_export.csv");
@@ -212,7 +207,7 @@ namespace SmartAssetTracking.App.Services
 
             foreach (var e in employees)
             {
-                writer.WriteLine($"{e.Id},{e.FullName},{e.Department},{e.Email},{e.AssignedAssets.Count}");
+                writer.WriteLine($"{e.Id},{e.FullName},{e.Department},{e.Email},{e.Assets.Count}");   // FIXED
             }
 
             Console.WriteLine($"CSV exported: {path}");
@@ -221,7 +216,7 @@ namespace SmartAssetTracking.App.Services
 
         private void ExportEmployeesJSON()
         {
-            var employees = _context.Employees.Include(e => e.AssignedAssets).ToList();
+            var employees = _context.Employees.Include(e => e.Assets).ToList();   // FIXED
             if (!employees.Any()) { Console.WriteLine("No employees to export."); Console.ReadKey(); return; }
 
             string path = Path.Combine(_exportFolder, "employees_export.json");
@@ -236,7 +231,7 @@ namespace SmartAssetTracking.App.Services
 
         private void ExportEmployeesTXT()
         {
-            var employees = _context.Employees.Include(e => e.AssignedAssets).ToList();
+            var employees = _context.Employees.Include(e => e.Assets).ToList();   // FIXED
             if (!employees.Any()) { Console.WriteLine("No employees to export."); Console.ReadKey(); return; }
 
             string path = Path.Combine(_exportFolder, "employees_export.txt");
@@ -250,7 +245,7 @@ namespace SmartAssetTracking.App.Services
             {
                 writer.WriteLine(
                     $"ID: {e.Id}\nName: {e.FullName}\nDepartment: {e.Department}\nEmail: {e.Email}\n" +
-                    $"Assets Assigned: {e.AssignedAssets.Count}\n----------------------------------------"
+                    $"Assets Assigned: {e.Assets.Count}\n----------------------------------------"   // FIXED
                 );
             }
 
